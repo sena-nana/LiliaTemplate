@@ -61,8 +61,8 @@ async function onClose() {
 
 <template>
   <header class="titlebar" data-tauri-drag-region>
-    <div class="titlebar__brand" data-tauri-drag-region>{{ title }}</div>
     <div class="titlebar__spacer" data-tauri-drag-region></div>
+    <div class="titlebar__brand" data-tauri-drag-region>{{ title }}</div>
     <div class="titlebar__controls">
       <button
         type="button"

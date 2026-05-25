@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { FolderOpen, MousePointer2 } from "lucide-vue-next";
+import { Copy, FolderOpen, MousePointer2, Pencil, Trash2 } from "lucide-vue-next";
 import ViewTabs from "../components/ViewTabs.vue";
-import { useContextMenu } from "../components/context-menu/useContextMenu";
 
-const contextMenu = useContextMenu();
-
-function onCardContextMenu(event: MouseEvent) {
-  contextMenu.show(event, [
-    { id: "rename", label: "重命名" },
-    { id: "duplicate", label: "复制页面" },
-    { id: "delete", label: "删除", disabled: true },
-  ]);
-}
+const cardMenu = [
+  { id: "rename", label: "重命名", icon: Pencil, onSelect: () => {} },
+  { id: "duplicate", label: "复制页面", icon: Copy, onSelect: () => {} },
+  {
+    id: "delete",
+    label: "删除",
+    icon: Trash2,
+    danger: true,
+    confirmLabel: "确认删除？再点一次",
+    onSelect: () => {},
+  },
+];
 </script>
 
 <template>
@@ -29,13 +31,13 @@ function onCardContextMenu(event: MouseEvent) {
     </div>
 
     <div class="template-grid">
-      <div class="card" @contextmenu="onCardContextMenu">
+      <div class="card" v-context-menu="cardMenu">
         <h2>应用外壳</h2>
         <p class="muted">
           已包含自绘标题栏、可拖拽侧栏、暗浅主题和紧凑工作台 UI。
         </p>
       </div>
-      <div class="card" @contextmenu="onCardContextMenu">
+      <div class="card" v-context-menu="cardMenu">
         <h2>右键菜单接口</h2>
         <p class="muted">
           <MousePointer2 :size="13" aria-hidden="true" />

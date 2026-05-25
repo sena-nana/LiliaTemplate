@@ -980,6 +980,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/plugin-store@npm:^2":
+  version: 2.4.3
+  resolution: "@tauri-apps/plugin-store@npm:2.4.3"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.11.0"
+  checksum: 10c0/051e2c672414dd4279a840529ecbd5d77b753d9e93dacea668f2444c30a4e2c657d685786b3b105e9a79144c97c7f068e3448e83ce771e3604ffd4efe666bcc6
+  languageName: node
+  linkType: hard
+
 "@testing-library/dom@npm:^10.4.1":
   version: 10.4.1
   resolution: "@testing-library/dom@npm:10.4.1"
@@ -3497,6 +3506,7 @@ __metadata:
     "@tauri-apps/api": "npm:^2"
     "@tauri-apps/cli": "npm:^2"
     "@tauri-apps/plugin-opener": "npm:^2"
+    "@tauri-apps/plugin-store": "npm:^2"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/vue": "npm:^8.1.0"
