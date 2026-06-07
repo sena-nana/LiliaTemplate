@@ -1,6 +1,20 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
+
+function scriptEnv(extra: Record<string, string>) {
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) {
+    if (key.toLowerCase() === "npm_config_user_agent") {
+      delete env[key];
+    }
+  }
+  return {
+    ...env,
+    ...extra,
+  };
+}
 
 describe("单应用模板工具链", () => {
   it("根 package.json 直接提供单应用脚本，不包含 workspace", () => {
@@ -9,11 +23,12 @@ describe("单应用模板工具链", () => {
     expect(pkg.workspaces).toBeUndefined();
     expect(pkg.packageManager).toBe("yarn@4.14.1");
     expect(pkg.scripts).toMatchObject({
+      "check:package-manager": "node scripts/check-package-manager.mjs",
       dev: "vite",
       build: "vue-tsc --noEmit && vite build",
       test: "vitest run",
       tauri: "tauri",
-      "tauri:dev": "tauri dev",
+      "tauri:dev": "node scripts/tauri-dev.mjs",
       "tauri:build": "tauri build",
       verify: "yarn test && yarn build && cargo check --manifest-path src-tauri/Cargo.toml",
     });
@@ -41,5 +56,54 @@ describe("单应用模板工具链", () => {
     expect(cargo).not.toContain("rusqlite");
     expect(cargo).not.toContain("r2d2");
     expect(cargo).not.toContain("reqwest");
+  });
+
+  it("包管理器检查接受 Yarn 4 并拒绝其他入口", () => {
+    const ok = spawnSync("node", ["scripts/check-package-manager.mjs"], {
+      cwd: resolve("."),
+      env: scriptEnv({
+        npm_config_user_agent: "yarn/4.14.1 npm/? node/?",
+      }),
+      encoding: "utf-8",
+    });
+    expect(ok.status).toBe(0);
+
+    const bad = spawnSync("node", ["scripts/check-package-manager.mjs"], {
+      cwd: resolve("."),
+      env: scriptEnv({
+        npm_config_user_agent: "npm/11.0.0 node/?",
+      }),
+      encoding: "utf-8",
+    });
+    expect(bad.status).toBe(1);
+    expect(bad.stderr).toContain("Tauri Template requires Yarn 4 through Corepack.");
+  });
+
+  it("Tauri dev 脚本 dry-run 输出动态端口配置", () => {
+    const run = spawnSync("node", ["scripts/tauri-dev.mjs", "--verbose"], {
+      cwd: resolve("."),
+      env: {
+        ...process.env,
+        TAURI_TEMPLATE_DEV_DRY_RUN: "1",
+        TAURI_TEMPLATE_DEV_PORT: "34120",
+      },
+      encoding: "utf-8",
+    });
+
+    expect(run.status).toBe(0);
+    const parsed = JSON.parse(run.stdout) as {
+      args: string[];
+      devUrl: string;
+      env: Record<string, string>;
+    };
+    expect(parsed.devUrl).toBe("http://localhost:34120");
+    expect(parsed.args).toContain("tauri");
+    expect(parsed.args).toContain("dev");
+    expect(parsed.args).toContain("--config");
+    expect(parsed.args).toContain("--verbose");
+    expect(parsed.env).toMatchObject({
+      TAURI_TEMPLATE_DEV_PORT: "34120",
+      TAURI_TEMPLATE_DEV_STRICT_PORT: "1",
+    });
   });
 });

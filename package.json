@@ -4,13 +4,21 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "check:package-manager": "node scripts/check-package-manager.mjs",
+    "predev": "node scripts/check-package-manager.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/check-package-manager.mjs",
     "build": "vue-tsc --noEmit && vite build",
+    "pretest": "node scripts/check-package-manager.mjs",
     "test": "vitest run",
     "preview": "vite preview",
+    "pretauri": "node scripts/check-package-manager.mjs",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev",
+    "pretauri:dev": "node scripts/check-package-manager.mjs",
+    "tauri:dev": "node scripts/tauri-dev.mjs",
+    "pretauri:build": "node scripts/check-package-manager.mjs",
     "tauri:build": "tauri build",
+    "preverify": "node scripts/check-package-manager.mjs",
     "verify": "yarn test && yarn build && cargo check --manifest-path src-tauri/Cargo.toml"
   },
   "dependencies": {

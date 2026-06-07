@@ -1,13 +1,26 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import { Copy, Minus, Square, X } from "lucide-vue-next";
+import {
+  Copy,
+  Minus,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Square,
+  X,
+} from "lucide-vue-next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 interface Props {
   title?: string;
+  leftSidebarCollapsed?: boolean;
+  sidebarTogglesDisabled?: boolean;
 }
 
 withDefaults(defineProps<Props>(), { title: "Tauri Template" });
+
+defineEmits<{
+  toggleLeftSidebar: [];
+}>();
 
 const isMaximized = ref(false);
 const appWindow = safeCurrentWindow();
@@ -61,7 +74,28 @@ async function onClose() {
 
 <template>
   <header class="titlebar" data-tauri-drag-region>
-    <div class="titlebar__spacer" data-tauri-drag-region></div>
+    <div class="titlebar__left-controls">
+      <button
+        type="button"
+        class="titlebar__btn titlebar__left-sidebar-btn"
+        :aria-label="leftSidebarCollapsed ? '展开左侧栏' : '折叠左侧栏'"
+        :title="leftSidebarCollapsed ? '展开左侧栏' : '折叠左侧栏'"
+        :aria-pressed="leftSidebarCollapsed"
+        :disabled="sidebarTogglesDisabled"
+        @click="$emit('toggleLeftSidebar')"
+      >
+        <PanelLeftOpen
+          v-if="leftSidebarCollapsed"
+          :size="15"
+          aria-hidden="true"
+        />
+        <PanelLeftClose
+          v-else
+          :size="15"
+          aria-hidden="true"
+        />
+      </button>
+    </div>
     <div class="titlebar__brand" data-tauri-drag-region>{{ title }}</div>
     <div class="titlebar__controls">
       <button
