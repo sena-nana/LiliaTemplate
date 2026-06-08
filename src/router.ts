@@ -4,9 +4,10 @@ import {
   type RouterHistory,
 } from "vue-router";
 import AppShell from "./layouts/AppShell.vue";
-import Home from "./pages/Home.vue";
-import Plugins from "./pages/Plugins.vue";
-import Settings from "./pages/Settings.vue";
+
+const HomePage = () => import("./pages/Home.vue");
+const PluginsPage = () => import("./pages/Plugins.vue");
+const SettingsPage = () => import("./pages/Settings.vue");
 
 export function createTemplateRouter(history: RouterHistory = createWebHistory()) {
   return createRouter({
@@ -17,11 +18,11 @@ export function createTemplateRouter(history: RouterHistory = createWebHistory()
         component: AppShell,
         meta: { sidebar: "main", returnable: true },
         children: [
-          { path: "", component: Home, meta: { sidebar: "main", returnable: true } },
-          { path: "plugins", component: Plugins, meta: { sidebar: "main", returnable: true } },
+          { path: "", component: HomePage, meta: { sidebar: "main", returnable: true } },
+          { path: "plugins", component: PluginsPage, meta: { sidebar: "main", returnable: true } },
           {
             path: "settings",
-            component: Settings,
+            component: SettingsPage,
             meta: { sidebar: "settings", lockSidebar: true, returnable: false },
           },
         ],

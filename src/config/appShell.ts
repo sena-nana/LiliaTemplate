@@ -10,10 +10,8 @@ import {
   Settings,
   Sparkles,
 } from "lucide-vue-next";
-import type { Component } from "vue";
+import { defineAsyncComponent, type Component } from "vue";
 import type { RouteLocationRaw } from "vue-router";
-import AppearanceSection from "../pages/settings/AppearanceSection.vue";
-import AboutSection from "../pages/settings/AboutSection.vue";
 
 export const APP_TITLE = "Tauri Template";
 
@@ -119,8 +117,8 @@ export const SETTINGS_TABS: SettingsTab[] = [
 export const DEFAULT_SETTINGS_TAB: SettingsTabKey = "appearance";
 
 export const SETTINGS_SECTIONS: Record<SettingsTabKey, Component> = {
-  appearance: AppearanceSection,
-  about: AboutSection,
+  appearance: defineAsyncComponent(() => import("../pages/settings/AppearanceSection.vue")),
+  about: defineAsyncComponent(() => import("../pages/settings/AboutSection.vue")),
 };
 
 export function normalizeSettingsTab(value: unknown): SettingsTabKey {

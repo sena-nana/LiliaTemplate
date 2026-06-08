@@ -48,7 +48,7 @@ describe("基础路由", () => {
     await renderAt("/settings?tab=about");
 
     expect(await screen.findByRole("heading", { level: 1, name: "关于" })).toBeInTheDocument();
-    expect(screen.getByText("Tauri 2 + Vue 3")).toBeInTheDocument();
+    expect(await screen.findByText("Tauri 2 + Vue 3")).toBeInTheDocument();
   });
 
   it("扩展页显示模板占位内容", async () => {
