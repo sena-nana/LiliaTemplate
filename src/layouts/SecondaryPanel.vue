@@ -92,3 +92,129 @@ import SidebarFooter from "../components/sidebar/SidebarFooter.vue";
     />
   </aside>
 </template>
+
+<style scoped>
+.sb-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+.sb-section--actions {
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 2px 0;
+}
+
+.sb-section__header {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 6px 0 8px;
+  color: var(--text-faint);
+}
+
+.sb-section__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.sb-section__tools {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.sb-section__header:hover .sb-section__tools,
+.sb-section__header:focus-within .sb-section__tools {
+  opacity: 1;
+}
+
+.sb-action,
+.sb-icon-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.sb-action {
+  flex: 1;
+  height: 30px;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.sb-icon-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+}
+
+.sb-action:hover,
+.sb-icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  filter: none;
+}
+
+.sb-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.sb-tree__empty {
+  margin: 6px 8px;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.sb-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.sb-tree__row:hover {
+  background: var(--bg-hover);
+}
+
+.sb-tree__row.is-active {
+  background: var(--bg-active);
+  color: var(--accent);
+}
+
+.sb-tree__row--project {
+  color: var(--text-muted);
+}
+
+.sb-tree__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

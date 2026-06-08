@@ -7,6 +7,7 @@ import { useShellSidebar } from "../composables/useShellSidebar";
 import TitleBar from "../components/TitleBar.vue";
 import SecondaryPanel from "./SecondaryPanel.vue";
 import SettingsSidebar from "./SettingsSidebar.vue";
+import "../styles/shell.css";
 
 const { route, returnTo } = useRouteReturnTarget();
 const sidebarLocked = computed(() => route.meta.lockSidebar === true);

@@ -6,6 +6,7 @@ import {
   SETTINGS_SECTIONS,
   normalizeSettingsTab,
 } from "../config/appShell";
+import "../styles/page.css";
 
 const route = useRoute();
 const activeTab = computed(() => normalizeSettingsTab(route.query.tab));

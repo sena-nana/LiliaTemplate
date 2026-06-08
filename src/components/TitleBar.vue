@@ -126,3 +126,75 @@ async function onClose() {
     </div>
   </header>
 </template>
+
+<style scoped>
+.titlebar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: stretch;
+  height: 36px;
+  background: var(--bg-elev);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.titlebar__left-controls {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+  gap: 2px;
+  padding: 0 6px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  min-width: 0;
+  max-width: min(420px, 44vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--text);
+}
+
+.titlebar__controls {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 2px;
+  padding: 0 6px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.titlebar__btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.titlebar__btn--danger:hover {
+  background: var(--err-soft);
+  color: var(--err);
+}
+</style>

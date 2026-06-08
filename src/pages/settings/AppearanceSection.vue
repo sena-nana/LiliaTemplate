@@ -45,3 +45,76 @@ const { theme, setTheme } = useTheme();
     </div>
   </div>
 </template>
+
+<style scoped>
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.settings-row:first-child {
+  padding-top: 4px;
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+
+.settings-row__label {
+  min-width: 0;
+}
+
+.settings-row__hint {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.segmented {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+  height: 34px;
+}
+
+.segmented button {
+  background: transparent;
+  color: var(--text-muted);
+  border: 0;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.segmented button:hover:not(.is-active) {
+  background: var(--bg-hover);
+  color: var(--text);
+  filter: none;
+}
+
+.segmented button.is-active {
+  background: var(--bg-active);
+  color: var(--text);
+  filter: none;
+}
+
+@media (max-width: 900px) {
+  .settings-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+</style>

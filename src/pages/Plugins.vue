@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import "../styles/page.css";
+</script>
+
 <template>
   <section>
     <div class="page-header">
