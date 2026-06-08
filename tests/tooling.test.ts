@@ -107,3 +107,23 @@ describe("单应用模板工具链", () => {
     });
   });
 });
+
+describe("Lilia 外壳样式迁移", () => {
+  it("保留侧栏折叠时的宽度、拖拽线和 reduced-motion 动效规则", () => {
+    const shellCss = readFileSync(resolve("src/styles/shell.css"), "utf-8");
+
+    expect(shellCss).toContain("transition: grid-template-columns 0.24s var(--sidebar-easing)");
+    expect(shellCss).toContain("left 0.24s var(--sidebar-easing)");
+    expect(shellCss).toContain("@media (prefers-reduced-motion: reduce)");
+  });
+
+  it("保留 Lilia 的透明按钮基线和显式强调态", () => {
+    const styles = readFileSync(resolve("src/styles.css"), "utf-8");
+
+    expect(styles).toContain("button {\n  background: transparent");
+    expect(styles).toContain("button.primary");
+    expect(styles).toContain("background: var(--accent-soft)");
+    expect(styles).toContain("button.ghost.danger:hover");
+    expect(styles).toContain("background: transparent");
+  });
+});
