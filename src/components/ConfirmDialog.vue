@@ -84,7 +84,7 @@ function onKeydown(event: KeyboardEvent) {
   overflow: hidden;
   background: var(--bg-elev);
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
 }
 

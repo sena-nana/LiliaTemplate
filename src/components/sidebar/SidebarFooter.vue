@@ -98,7 +98,7 @@ defineProps<{
   text-decoration: none;
   min-width: 0;
   opacity: 0.62;
-  transition: opacity 0.35s ease, background-color 0.12s ease, color 0.12s ease, filter 0.12s ease;
+  transition: opacity 0.35s ease, background-color 0.12s ease, color 0.12s ease;
 }
 
 .sb-footer:hover .sb-conn,
@@ -111,28 +111,16 @@ defineProps<{
   color: var(--accent);
 }
 
-.sb-conn--ok:hover {
-  filter: brightness(1.1);
-}
-
 .sb-conn--warn {
   background: var(--warn-soft);
   color: var(--warn);
   opacity: 0.82;
 }
 
-.sb-conn--warn:hover {
-  filter: brightness(1.1);
-}
-
 .sb-conn--error {
   background: var(--err-soft);
   color: var(--err);
   opacity: 0.9;
-}
-
-.sb-conn--error:hover {
-  filter: brightness(1.1);
 }
 
 .sb-conn__label {

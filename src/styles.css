@@ -150,7 +150,8 @@ button {
 }
 
 button:hover {
-  filter: brightness(1.08);
+  background: var(--accent-strong);
+  filter: none;
 }
 
 button:disabled {
@@ -178,7 +179,7 @@ button.primary {
 
 button.ghost.danger {
   color: var(--err);
-  border-color: rgba(244, 113, 116, 0.45);
+  border-color: var(--border-strong);
 }
 
 button.ghost.danger:hover {
