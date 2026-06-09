@@ -34,6 +34,7 @@ export interface SidebarNavItem {
   to?: string;
   label: string;
   icon: Component;
+  tools?: SidebarActionItem[];
   disabled?: boolean;
 }
 
@@ -65,14 +66,26 @@ export const SIDEBAR_GLOBAL_ACTIONS: SidebarActionItem[] = [
 ];
 
 export const SIDEBAR_NAV: SidebarNavItem[] = [
-  { to: "/", label: "概览", icon: Home },
+  {
+    to: "/",
+    label: "概览",
+    icon: Home,
+    tools: [{ key: "new", label: "新建", icon: FilePlus2, disabled: true }],
+  },
 ];
 
 export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
     title: "示例分组",
     tools: [{ key: "more", label: "更多", icon: MoreHorizontal, disabled: true }],
-    items: [{ label: "Template Workspace", icon: Folder, disabled: true }],
+    items: [
+      {
+        label: "Template Workspace",
+        icon: Folder,
+        disabled: true,
+        tools: [{ key: "more", label: "更多", icon: MoreHorizontal, disabled: true }],
+      },
+    ],
     emptyText: "替换为你的业务导航。",
   },
 ];

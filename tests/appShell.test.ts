@@ -1,4 +1,4 @@
-import { fireEvent, render, waitFor } from "@testing-library/vue";
+import { fireEvent, render, waitFor, within } from "@testing-library/vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SIDEBAR_CONFIG } from "../src/config/appShell";
@@ -67,11 +67,51 @@ function leftResizer(container: HTMLElement): HTMLElement {
   return resizer;
 }
 
+function sidebarRowForText(container: HTMLElement, text: string): HTMLElement {
+  const label = Array.from(container.querySelectorAll(".sb-tree__name")).find(
+    (node) => node.textContent === text,
+  );
+  const row = label?.closest(".sb-tree__row");
+  if (!(row instanceof HTMLElement)) {
+    throw new Error(`未找到侧边栏行: ${text}`);
+  }
+  return row;
+}
+
+function hoverToolsIn(row: HTMLElement): HTMLElement {
+  const tools = row.querySelector(".sb-tree__hover-tools");
+  if (!(tools instanceof HTMLElement)) {
+    throw new Error("未找到行内工具按钮容器");
+  }
+  return tools;
+}
+
 beforeEach(() => {
   localStorage.clear();
 });
 
 describe("AppShell sidebar", () => {
+  it("主侧边栏行内部包含迁移自 Lilia 的悬停工具按钮", async () => {
+    const view = await renderAppShell("/plugins");
+    const overviewRow = sidebarRowForText(view.container, "概览");
+    const workspaceRow = sidebarRowForText(view.container, "Template Workspace");
+
+    const overviewTools = hoverToolsIn(overviewRow);
+    const workspaceTools = hoverToolsIn(workspaceRow);
+    const overviewNew = within(overviewTools).getByRole("button", { name: "新建" });
+    const workspaceMore = within(workspaceTools).getByRole("button", { name: "更多" });
+
+    expect(overviewTools.parentElement).toBe(overviewRow);
+    expect(workspaceTools.parentElement).toBe(workspaceRow);
+    expect(overviewNew).toBeDisabled();
+    expect(workspaceMore).toBeDisabled();
+
+    await fireEvent.click(overviewTools);
+    await fireEvent.click(workspaceTools);
+
+    expect(view.router.currentRoute.value.fullPath).toBe("/plugins");
+  });
+
   it("左上角按钮切换左侧栏折叠状态并写回本地存储", async () => {
     const view = await renderAppShell();
     const shell = shellElement(view.container);

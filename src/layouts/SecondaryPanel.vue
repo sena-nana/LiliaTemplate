@@ -9,6 +9,7 @@ import {
   SIDEBAR_NAV,
 } from "../config/appShell";
 import SidebarFooter from "../components/sidebar/SidebarFooter.vue";
+import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
 </script>
 
 <template>
@@ -47,6 +48,7 @@ import SidebarFooter from "../components/sidebar/SidebarFooter.vue";
         >
           <component :is="item.icon" :size="14" aria-hidden="true" />
           <span class="sb-tree__name">{{ item.label }}</span>
+          <SidebarRowTools v-if="item.tools?.length" :tools="item.tools" />
         </RouterLink>
       </nav>
     </div>
@@ -81,6 +83,7 @@ import SidebarFooter from "../components/sidebar/SidebarFooter.vue";
         >
           <component :is="item.icon" :size="14" aria-hidden="true" />
           <span class="sb-tree__name">{{ item.label }}</span>
+          <SidebarRowTools v-if="item.tools?.length" :tools="item.tools" />
         </div>
         <p v-if="group.emptyText" class="sb-tree__empty">{{ group.emptyText }}</p>
       </div>
@@ -204,6 +207,13 @@ import SidebarFooter from "../components/sidebar/SidebarFooter.vue";
 .sb-tree__row.is-active {
   background: var(--bg-active);
   color: var(--accent);
+}
+
+.sb-tree__row:hover .sb-tree__hover-tools,
+.sb-tree__row:focus-within .sb-tree__hover-tools,
+.sb-tree__row.is-active .sb-tree__hover-tools {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .sb-tree__row--project {

@@ -126,4 +126,20 @@ describe("Lilia 外壳样式迁移", () => {
     expect(styles).toContain("button.ghost.danger:hover");
     expect(styles).toContain("background: transparent");
   });
+
+  it("保留 Lilia 侧边栏行内工具的悬停显隐动画", () => {
+    const secondaryPanel = readFileSync(resolve("src/layouts/SecondaryPanel.vue"), "utf-8");
+    const rowTools = readFileSync(resolve("src/components/sidebar/SidebarRowTools.vue"), "utf-8");
+
+    expect(rowTools).toContain("class=\"sb-tree__hover-tools\"");
+    expect(rowTools).toContain(".sb-tree__hover-tools");
+    expect(rowTools).toContain("opacity: 0");
+    expect(rowTools).toContain("pointer-events: none");
+    expect(secondaryPanel).toContain(".sb-tree__hover-tools");
+    expect(secondaryPanel).toContain(".sb-tree__row:hover .sb-tree__hover-tools");
+    expect(secondaryPanel).toContain(".sb-tree__row:focus-within .sb-tree__hover-tools");
+    expect(secondaryPanel).toContain(".sb-tree__row.is-active .sb-tree__hover-tools");
+    expect(secondaryPanel).toContain("opacity: 1");
+    expect(secondaryPanel).toContain("pointer-events: auto");
+  });
 });
