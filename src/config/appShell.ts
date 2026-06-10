@@ -21,6 +21,8 @@ export const APP_METADATA = {
   storageKeyPrefix: appConfig.storageKeyPrefix,
 } as const;
 
+export const APP_SHELL_COPY = appConfig.shell;
+
 export const APP_TITLE = APP_METADATA.productTitle;
 
 export const SIDEBAR_CONFIG = {
@@ -88,13 +90,13 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
     tools: [{ key: "more", label: "更多", icon: MoreHorizontal, disabled: true }],
     items: [
       {
-        label: "Template Workspace",
+        label: APP_SHELL_COPY.workspaceName,
         icon: Folder,
         disabled: true,
         tools: [{ key: "more", label: "更多", icon: MoreHorizontal, disabled: true }],
       },
     ],
-    emptyText: "替换为你的业务导航。",
+    emptyText: APP_SHELL_COPY.workspaceEmptyText,
   },
 ];
 
@@ -105,8 +107,8 @@ export const SIDEBAR_FOOTER_LINKS: SidebarFooterLink[] = [
 
 export const SIDEBAR_FOOTER_STATUS: SidebarFooterStatus = {
   to: "/settings",
-  label: "Ready",
-  title: "模板状态正常。点击进入设置。",
+  label: APP_SHELL_COPY.statusLabel,
+  title: APP_SHELL_COPY.statusTitle,
   tone: "ok",
   icon: Sparkles,
 };

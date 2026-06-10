@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Copy, FolderOpen, MousePointer2, Pencil, Trash2 } from "@lucide/vue";
 import ViewTabs from "../components/ViewTabs.vue";
+import { APP_SHELL_COPY } from "../config/appShell";
 import "../styles/page.css";
 
 const cardMenu = [
@@ -22,12 +23,12 @@ const cardMenu = [
     <ViewTabs active="overview" />
     <div class="page-header">
       <div>
-        <h1>Tauri 应用模板</h1>
-        <p>从这里开始替换成你的业务页面。</p>
+        <h1>{{ APP_SHELL_COPY.homeTitle }}</h1>
+        <p>{{ APP_SHELL_COPY.homeDescription }}</p>
       </div>
       <button type="button" class="ghost">
         <FolderOpen :size="14" aria-hidden="true" />
-        打开项目
+        {{ APP_SHELL_COPY.homeActionLabel }}
       </button>
     </div>
 

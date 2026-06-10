@@ -2,6 +2,7 @@
 import { RouterLink } from "vue-router";
 import { Plus } from "@lucide/vue";
 import {
+  APP_SHELL_COPY,
   SIDEBAR_FOOTER_LINKS,
   SIDEBAR_FOOTER_STATUS,
   SIDEBAR_GLOBAL_ACTIONS,
@@ -30,7 +31,7 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
 
     <div class="sb-section">
       <div class="sb-section__header">
-        <span class="sb-section__title">工作区</span>
+        <span class="sb-section__title">{{ APP_SHELL_COPY.workspaceSectionTitle }}</span>
         <div class="sb-section__tools">
           <button type="button" class="sb-icon-btn" title="添加" aria-label="添加" disabled>
             <Plus :size="14" aria-hidden="true" />

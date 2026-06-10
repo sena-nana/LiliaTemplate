@@ -23,6 +23,17 @@ function appConfig() {
     version: string;
     identifier: string;
     storageKeyPrefix: string;
+    shell: {
+      homeTitle: string;
+      homeDescription: string;
+      homeActionLabel: string;
+      workspaceSectionTitle: string;
+      workspaceName: string;
+      workspaceEmptyText: string;
+      statusLabel: string;
+      statusTitle: string;
+      settingsDescription: string;
+    };
   };
 }
 
@@ -149,6 +160,9 @@ describe("单应用模板工具链", () => {
     const tauri = JSON.parse(readFileSync(resolve("src-tauri/tauri.conf.json"), "utf-8"));
     const cargo = readFileSync(resolve("src-tauri/Cargo.toml"), "utf-8");
     const appShell = readFileSync(resolve("src/config/appShell.ts"), "utf-8");
+    const homePage = readFileSync(resolve("src/pages/Home.vue"), "utf-8");
+    const settingsPage = readFileSync(resolve("src/pages/Settings.vue"), "utf-8");
+    const secondaryPanel = readFileSync(resolve("src/layouts/SecondaryPanel.vue"), "utf-8");
     const aboutSection = readFileSync(resolve("src/pages/settings/AboutSection.vue"), "utf-8");
     const indexHtml = readFileSync(resolve("index.html"), "utf-8");
 
@@ -160,6 +174,12 @@ describe("单应用模板工具链", () => {
     expect(tauri.app.windows[0].title).toBe(config.productTitle);
     expect(cargo).toContain(`version = "${config.version}"`);
     expect(appShell).toContain('import appConfig from "../../app.config.json"');
+    expect(appShell).toContain("APP_SHELL_COPY");
+    expect(homePage).toContain("APP_SHELL_COPY.homeTitle");
+    expect(homePage).toContain("APP_SHELL_COPY.homeDescription");
+    expect(homePage).toContain("APP_SHELL_COPY.homeActionLabel");
+    expect(settingsPage).toContain("APP_SHELL_COPY.settingsDescription");
+    expect(secondaryPanel).toContain("APP_SHELL_COPY.workspaceSectionTitle");
     expect(aboutSection).toContain("APP_METADATA.productTitle");
     expect(aboutSection).toContain("APP_METADATA.version");
     expect(indexHtml).toContain("%APP_PRODUCT_TITLE%");

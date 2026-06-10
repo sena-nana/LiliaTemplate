@@ -58,8 +58,30 @@ function syncTomlValue(relativePath, key, value) {
 function validateAppConfig(config) {
   const required = ["appName", "productTitle", "version", "identifier", "storageKeyPrefix"];
   for (const key of required) {
-    if (typeof config[key] !== "string" || config[key].trim() === "") {
-      throw new Error(`app.config.json requires a non-empty string "${key}".`);
-    }
+    assertNonEmptyString(config[key], key);
+  }
+
+  const shellRequired = [
+    "homeTitle",
+    "homeDescription",
+    "homeActionLabel",
+    "workspaceSectionTitle",
+    "workspaceName",
+    "workspaceEmptyText",
+    "statusLabel",
+    "statusTitle",
+    "settingsDescription",
+  ];
+  if (typeof config.shell !== "object" || config.shell === null) {
+    throw new Error('app.config.json requires a "shell" object.');
+  }
+  for (const key of shellRequired) {
+    assertNonEmptyString(config.shell[key], `shell.${key}`);
+  }
+}
+
+function assertNonEmptyString(value, keyPath) {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`app.config.json requires a non-empty string "${keyPath}".`);
   }
 }

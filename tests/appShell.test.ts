@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor, within } from "@testing-library/vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SIDEBAR_CONFIG } from "../src/config/appShell";
+import { APP_SHELL_COPY, SIDEBAR_CONFIG } from "../src/config/appShell";
 import AppShell from "../src/layouts/AppShell.vue";
 
 vi.mock("@tauri-apps/api/window", () => ({
@@ -94,7 +94,7 @@ describe("AppShell sidebar", () => {
   it("主侧边栏行内部包含迁移自 Lilia 的悬停工具按钮", async () => {
     const view = await renderAppShell("/plugins");
     const overviewRow = sidebarRowForText(view.container, "概览");
-    const workspaceRow = sidebarRowForText(view.container, "Template Workspace");
+    const workspaceRow = sidebarRowForText(view.container, APP_SHELL_COPY.workspaceName);
 
     const overviewTools = hoverToolsIn(overviewRow);
     const workspaceTools = hoverToolsIn(workspaceRow);

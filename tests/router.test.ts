@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/vue";
 import { createMemoryHistory } from "vue-router";
 import { describe, expect, it } from "vitest";
 import App from "../src/App.vue";
+import { APP_SHELL_COPY } from "../src/config/appShell";
 import { createTemplateRouter } from "../src/router";
 
 async function renderAt(path: string) {
@@ -21,7 +22,7 @@ describe("基础路由", () => {
     await renderAt("/");
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Tauri 应用模板" }),
+      await screen.findByRole("heading", { level: 1, name: APP_SHELL_COPY.homeTitle }),
     ).toBeInTheDocument();
   });
 
@@ -31,7 +32,7 @@ describe("基础路由", () => {
     expect(screen.getAllByRole("link", { name: "设置" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "扩展" })).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "模板状态正常。点击进入设置。" }),
+      screen.getByRole("link", { name: APP_SHELL_COPY.statusTitle }),
     ).toHaveClass("sb-conn--ok");
   });
 
@@ -61,7 +62,7 @@ describe("基础路由", () => {
   it("未知路由回到首页", async () => {
     await renderAt("/missing");
 
-    expect(await screen.findByText("从这里开始替换成你的业务页面。")).toBeInTheDocument();
+    expect(await screen.findByText(APP_SHELL_COPY.homeDescription)).toBeInTheDocument();
   });
 
   it("未知设置 tab 回落到外观", async () => {

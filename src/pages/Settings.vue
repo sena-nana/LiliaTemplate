@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import {
+  APP_SHELL_COPY,
   SETTINGS_TABS,
   SETTINGS_SECTIONS,
   normalizeSettingsTab,
@@ -21,7 +22,7 @@ const activeTabLabel = computed(
     <div class="page-header">
       <div>
         <h1>{{ activeTabLabel }}</h1>
-        <p>这里只保留模板级偏好，业务配置由具体项目添加。</p>
+        <p>{{ APP_SHELL_COPY.settingsDescription }}</p>
       </div>
     </div>
 
