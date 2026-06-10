@@ -27,6 +27,9 @@ describe("单应用模板工具链", () => {
       dev: "vite",
       build: "vue-tsc --noEmit && vite build",
       test: "vitest run",
+      "docs:dev": "vitepress dev docs",
+      "docs:build": "vitepress build docs",
+      "docs:preview": "vitepress preview docs",
       tauri: "tauri",
       "tauri:dev": "node scripts/tauri-dev.mjs",
       "tauri:build": "tauri build",
@@ -42,6 +45,7 @@ describe("单应用模板工具链", () => {
     expect(deps["vue-router"]).toBeDefined();
     expect(deps["@tauri-apps/api"]).toBeDefined();
     expect(deps["@tauri-apps/plugin-store"]).toBeDefined();
+    expect(deps.vitepress).toBeDefined();
     expect(deps["@anthropic-ai/claude-agent-sdk"]).toBeUndefined();
     expect(deps["@openai/codex-sdk"]).toBeUndefined();
     expect(deps["@modelcontextprotocol/sdk"]).toBeUndefined();
@@ -106,6 +110,39 @@ describe("单应用模板工具链", () => {
       TAURI_TEMPLATE_DEV_STRICT_PORT: "1",
     });
   });
+
+  it("GitHub workflow 使用模板路径和通用发布配置", () => {
+    const ci = readFileSync(resolve(".github/workflows/ci.yml"), "utf-8");
+    const release = readFileSync(resolve(".github/workflows/release.yml"), "utf-8");
+    const pages = readFileSync(resolve(".github/workflows/pages.yml"), "utf-8");
+    const combined = [ci, release, pages].join("\n");
+
+    expect(ci).toContain("corepack yarn verify");
+    expect(ci).toContain("corepack yarn docs:build");
+    expect(ci).toContain("src-tauri/target");
+    expect(release).toContain("projectPath: .");
+    expect(release).toContain("releaseName: Tauri Template");
+    expect(pages).toContain("docs/.vitepress/dist");
+    expect(combined).not.toContain("apps/desktop");
+    expect(combined).not.toContain("LiliaCode");
+  });
+
+  it("GitHub Issue 模板不包含 Lilia 业务字段", () => {
+    const bug = readFileSync(resolve(".github/ISSUE_TEMPLATE/bug_report.yml"), "utf-8");
+    const feature = readFileSync(
+      resolve(".github/ISSUE_TEMPLATE/feature_request.yml"),
+      "utf-8",
+    );
+    const combined = `${bug}\n${feature}`;
+
+    expect(combined).toContain("模板版本 / commit");
+    expect(combined).toContain("构建 / 发布");
+    expect(combined).not.toContain("Lilia 版本");
+    expect(combined).not.toContain("Backend");
+    expect(combined).not.toContain("Agent");
+    expect(combined).not.toContain("Memory");
+    expect(combined).not.toContain("Roadmap");
+  });
 });
 
 describe("Lilia 外壳样式迁移", () => {
@@ -118,7 +155,7 @@ describe("Lilia 外壳样式迁移", () => {
   });
 
   it("保留 Lilia 的透明按钮基线和显式强调态", () => {
-    const styles = readFileSync(resolve("src/styles.css"), "utf-8");
+    const styles = readFileSync(resolve("src/styles.css"), "utf-8").replace(/\r\n/g, "\n");
 
     expect(styles).toContain("button {\n  background: transparent");
     expect(styles).toContain("button.primary");
