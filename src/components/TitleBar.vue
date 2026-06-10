@@ -9,6 +9,7 @@ import {
   X,
 } from "@lucide/vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { APP_TITLE } from "../config/appShell";
 
 interface Props {
   title?: string;
@@ -16,7 +17,7 @@ interface Props {
   sidebarTogglesDisabled?: boolean;
 }
 
-withDefaults(defineProps<Props>(), { title: "Tauri Template" });
+withDefaults(defineProps<Props>(), { title: APP_TITLE });
 
 defineEmits<{
   toggleLeftSidebar: [];

@@ -1,4 +1,4 @@
-# Tauri Template
+# 桌面应用模板
 
 从 Lilia 桌面端外壳提取出的最小 Tauri 2 + Vue 3 + TypeScript 应用模板。
 
@@ -9,6 +9,7 @@
 - 暗色 / 浅色主题切换与本地持久化。
 - 声明式右键菜单、程序化打开菜单和通用确认弹层。
 - Yarn 4 单应用工具链、Vitest 测试和 Tauri Rust 编译检查。
+- `app.config.json` 作为应用名称、产品标题、版本和 Tauri 标识的单一配置源。
 
 ## 开始使用
 

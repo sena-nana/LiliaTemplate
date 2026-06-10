@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
+import appConfig from "../app.config.json";
+
+const themeStorageKey = `${appConfig.storageKeyPrefix}.theme`;
 
 describe("useTheme", () => {
   it("从 localStorage 恢复主题并写入 html data-theme", async () => {
-    localStorage.setItem("tauri-template.theme", "light");
+    localStorage.setItem(themeStorageKey, "light");
     vi.resetModules();
 
     const { useTheme } = await import("../src/composables/useTheme");
@@ -21,6 +24,6 @@ describe("useTheme", () => {
 
     expect(theme.value).toBe("dark");
     expect(document.documentElement.dataset.theme).toBe("dark");
-    expect(localStorage.getItem("tauri-template.theme")).toBe("dark");
+    expect(localStorage.getItem(themeStorageKey)).toBe("dark");
   });
 });

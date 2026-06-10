@@ -1,4 +1,4 @@
-# Tauri Template
+# 桌面应用模板
 
 一个从 Lilia 当前桌面端外壳提取出的最小 Tauri 2 + Vue 3 + TypeScript 应用模板。
 
@@ -9,6 +9,7 @@
 - 暗色 / 浅色主题切换与本地持久化。
 - 组件声明式右键菜单、程序化打开菜单、危险项二次确认，并全局屏蔽浏览器原生右键菜单。
 - 通用确认弹层和模板版 `AGENTS.md` 开发规范。
+- 根级 `app.config.json` 统一维护应用名称、产品标题、版本和 Tauri 标识。
 - Yarn 4 单应用包管理与 `verify` 验证脚本。
 - 最小 Tauri Rust 壳和 `ping` invoke 冒烟命令。
 
@@ -28,3 +29,7 @@ yarn verify
 ```
 
 `yarn verify` 会串行运行前端测试、前端构建和 Tauri Rust 编译检查。
+
+## 应用信息
+
+修改根目录的 `app.config.json` 后运行 `yarn sync:app-config`，会同步更新前端展示、`package.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml`。

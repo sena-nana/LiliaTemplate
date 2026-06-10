@@ -5,6 +5,9 @@ import { readFileSync } from "node:fs";
 const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
+const appConfig = JSON.parse(
+  readFileSync(new URL("../app.config.json", import.meta.url), "utf8"),
+);
 const requiredPackageManager = packageJson.packageManager;
 const userAgent = process.env.npm_config_user_agent ?? "";
 
@@ -28,7 +31,7 @@ process.exit(1);
 function formatMessage(reason) {
   return [
     "",
-    "Tauri Template requires Yarn 4 through Corepack.",
+    `${appConfig.productTitle} requires Yarn 4 through Corepack.`,
     reason,
     "",
     `Expected package manager: ${requiredPackageManager}`,

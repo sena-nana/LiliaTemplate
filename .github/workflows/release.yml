@@ -139,6 +139,13 @@ jobs:
       - name: Install dependencies
         run: corepack yarn install --immutable
 
+      - name: Resolve app metadata
+        id: app_metadata
+        shell: pwsh
+        run: |
+          $config = Get-Content app.config.json -Raw | ConvertFrom-Json
+          "product_title=$($config.productTitle)" >> $env:GITHUB_OUTPUT
+
       - name: Build and publish Windows bundle
         uses: tauri-apps/tauri-action@v1
         env:
@@ -147,6 +154,6 @@ jobs:
           projectPath: .
           tauriScript: corepack yarn tauri
           tagName: ${{ steps.release_ref.outputs.tag }}
-          releaseName: Tauri Template ${{ steps.release_ref.outputs.tag }}
+          releaseName: ${{ steps.app_metadata.outputs.product_title }} ${{ steps.release_ref.outputs.tag }}
           releaseDraft: true
           generateReleaseNotes: true

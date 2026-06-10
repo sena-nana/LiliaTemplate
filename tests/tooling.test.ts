@@ -16,6 +16,16 @@ function scriptEnv(extra: Record<string, string>) {
   };
 }
 
+function appConfig() {
+  return JSON.parse(readFileSync(resolve("app.config.json"), "utf-8")) as {
+    appName: string;
+    productTitle: string;
+    version: string;
+    identifier: string;
+    storageKeyPrefix: string;
+  };
+}
+
 describe("单应用模板工具链", () => {
   it("根 package.json 直接提供单应用脚本，不包含 workspace", () => {
     const pkg = JSON.parse(readFileSync(resolve("package.json"), "utf-8"));
@@ -23,9 +33,13 @@ describe("单应用模板工具链", () => {
     expect(pkg.workspaces).toBeUndefined();
     expect(pkg.packageManager).toBe("yarn@4.14.1");
     expect(pkg.scripts).toMatchObject({
+      "sync:app-config": "node scripts/sync-app-config.mjs",
       "check:package-manager": "node scripts/check-package-manager.mjs",
+      predev: "node scripts/prepare-app.mjs",
       dev: "vite",
+      prebuild: "node scripts/prepare-app.mjs",
       build: "vue-tsc --noEmit && vite build",
+      pretest: "node scripts/prepare-app.mjs",
       test: "vitest run",
       "docs:dev": "vitepress dev docs",
       "docs:build": "vitepress build docs",
@@ -80,7 +94,7 @@ describe("单应用模板工具链", () => {
       encoding: "utf-8",
     });
     expect(bad.status).toBe(1);
-    expect(bad.stderr).toContain("Tauri Template requires Yarn 4 through Corepack.");
+    expect(bad.stderr).toContain(`${appConfig().productTitle} requires Yarn 4 through Corepack.`);
   });
 
   it("Tauri dev 脚本 dry-run 输出动态端口配置", () => {
@@ -121,11 +135,35 @@ describe("单应用模板工具链", () => {
     expect(ci).toContain("corepack yarn docs:build");
     expect(ci).toContain("src-tauri/target");
     expect(release).toContain("projectPath: .");
-    expect(release).toContain("releaseName: Tauri Template");
+    expect(release).toContain("Get-Content app.config.json -Raw");
+    expect(release).toContain("releaseName: ${{ steps.app_metadata.outputs.product_title }}");
     expect(pages).toContain("docs/.vitepress/dist");
     expect(pages).not.toContain("enablement: true");
     expect(combined).not.toContain("apps/desktop");
     expect(combined).not.toContain("LiliaCode");
+  });
+
+  it("app.config.json 是应用名称、标题和版本的同步来源", () => {
+    const config = appConfig();
+    const pkg = JSON.parse(readFileSync(resolve("package.json"), "utf-8"));
+    const tauri = JSON.parse(readFileSync(resolve("src-tauri/tauri.conf.json"), "utf-8"));
+    const cargo = readFileSync(resolve("src-tauri/Cargo.toml"), "utf-8");
+    const appShell = readFileSync(resolve("src/config/appShell.ts"), "utf-8");
+    const aboutSection = readFileSync(resolve("src/pages/settings/AboutSection.vue"), "utf-8");
+    const indexHtml = readFileSync(resolve("index.html"), "utf-8");
+
+    expect(pkg.name).toBe(config.appName);
+    expect(pkg.version).toBe(config.version);
+    expect(tauri.productName).toBe(config.productTitle);
+    expect(tauri.version).toBe(config.version);
+    expect(tauri.identifier).toBe(config.identifier);
+    expect(tauri.app.windows[0].title).toBe(config.productTitle);
+    expect(cargo).toContain(`version = "${config.version}"`);
+    expect(appShell).toContain('import appConfig from "../../app.config.json"');
+    expect(aboutSection).toContain("APP_METADATA.productTitle");
+    expect(aboutSection).toContain("APP_METADATA.version");
+    expect(indexHtml).toContain("%APP_PRODUCT_TITLE%");
+    expect(indexHtml).toContain("%APP_STORAGE_KEY_PREFIX%.theme");
   });
 
   it("GitHub Issue 模板不包含 Lilia 业务字段", () => {

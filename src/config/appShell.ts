@@ -12,12 +12,20 @@ import {
 } from "@lucide/vue";
 import { defineAsyncComponent, type Component } from "vue";
 import type { RouteLocationRaw } from "vue-router";
+import appConfig from "../../app.config.json";
 
-export const APP_TITLE = "Tauri Template";
+export const APP_METADATA = {
+  appName: appConfig.appName,
+  productTitle: appConfig.productTitle,
+  version: appConfig.version,
+  storageKeyPrefix: appConfig.storageKeyPrefix,
+} as const;
+
+export const APP_TITLE = APP_METADATA.productTitle;
 
 export const SIDEBAR_CONFIG = {
-  widthStorageKey: "tauri-template.sidebarWidth",
-  collapsedStorageKey: "tauri-template.sidebarCollapsed",
+  widthStorageKey: `${APP_METADATA.storageKeyPrefix}.sidebarWidth`,
+  collapsedStorageKey: `${APP_METADATA.storageKeyPrefix}.sidebarCollapsed`,
   minWidth: 180,
   maxWidth: 480,
   defaultWidth: 220,

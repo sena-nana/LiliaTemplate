@@ -1,7 +1,11 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import net from "node:net";
 import { fileURLToPath } from "node:url";
 
+const appConfig = JSON.parse(
+  readFileSync(new URL("../app.config.json", import.meta.url), "utf8"),
+);
 const DEFAULT_PORT = 1420;
 const LOCALHOST_CHECK_HOSTS = ["127.0.0.1", "::1"];
 
@@ -93,7 +97,7 @@ if (process.env.TAURI_TEMPLATE_DEV_DRY_RUN === "1") {
   process.exit(0);
 }
 
-console.log(`[tauri-template] Starting Tauri dev server at ${devUrl}`);
+console.log(`[${appConfig.appName}] Starting Tauri dev server at ${devUrl}`);
 
 const spawnConfig = yarnSpawn();
 const child = spawn(spawnConfig.command, [...spawnConfig.argsPrefix, ...args], {
@@ -104,7 +108,7 @@ const child = spawn(spawnConfig.command, [...spawnConfig.argsPrefix, ...args], {
 });
 
 child.on("error", (error) => {
-  console.error(`[tauri-template] Failed to start Tauri dev: ${error.message}`);
+  console.error(`[${appConfig.appName}] Failed to start Tauri dev: ${error.message}`);
   process.exitCode = 1;
 });
 

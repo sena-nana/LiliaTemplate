@@ -1,8 +1,9 @@
 import { ref, watch } from "vue";
+import { APP_METADATA } from "../config/appShell";
 
 export type Theme = "dark" | "light";
 
-const STORAGE_KEY = "tauri-template.theme";
+const STORAGE_KEY = `${APP_METADATA.storageKeyPrefix}.theme`;
 const DEFAULT_THEME: Theme = "dark";
 
 function loadInitial(): Theme {
