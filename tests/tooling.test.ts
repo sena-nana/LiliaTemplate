@@ -123,6 +123,7 @@ describe("单应用模板工具链", () => {
     expect(release).toContain("projectPath: .");
     expect(release).toContain("releaseName: Tauri Template");
     expect(pages).toContain("docs/.vitepress/dist");
+    expect(pages).not.toContain("enablement: true");
     expect(combined).not.toContain("apps/desktop");
     expect(combined).not.toContain("LiliaCode");
   });
