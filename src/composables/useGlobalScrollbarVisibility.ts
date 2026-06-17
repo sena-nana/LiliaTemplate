@@ -1,174 +1,122 @@
-interface ScrollbarMetricInput {
-  domainSize: number;
-  minThumbSize?: number;
-  scrollOffset: number;
-  trackSize: number;
-  visibleSize: number;
-}
+type Axis = "vertical" | "horizontal";
 
-interface ScrollbarMetrics {
-  domainSize: number;
-  scrollable: boolean;
-  scrollOffset: number;
-  thumbOffset: number;
-  thumbSize: number;
-  trackSize: number;
-  visibleSize: number;
-}
-
-const DEFAULT_HIDE_DELAY = 480;
-const HOVER_HOT_ZONE = 12;
-const TRACK_EDGE_PADDING = 4;
-
-type ScrollbarVisibilityTarget = {
+type ScrollTarget = {
   key: Element;
   scroller: Element | Window;
 };
 
-type ScrollbarAxis = "vertical" | "horizontal";
-
-type DragState = {
-  axis: ScrollbarAxis;
-  metrics: ScrollbarMetrics;
-  pointerId: number | null;
-  startX: number;
-  startY: number;
-  startScrollLeft: number;
-  startScrollTop: number;
-  target: ScrollbarVisibilityTarget;
+type ScrollMetrics = {
+  clientHeight: number;
+  clientWidth: number;
+  rect: Pick<DOMRect, "top" | "right" | "bottom" | "left" | "width" | "height">;
+  scrollHeight: number;
+  scrollLeft: number;
+  scrollTop: number;
+  scrollWidth: number;
 };
 
+type ThumbMetrics = {
+  domainSize: number;
+  thumbOffset: number;
+  thumbSize: number;
+  trackSize: number;
+  visibleSize: number;
+};
+
+type OverlayPair = {
+  horizontal: HTMLDivElement;
+  vertical: HTMLDivElement;
+};
+
+type OverlayBinding = {
+  axis: Axis;
+  target: ScrollTarget;
+};
+
+type DragState = OverlayBinding & {
+  metrics: ThumbMetrics;
+  pointerId: number | null;
+  startPointer: number;
+  startScroll: number;
+};
+
+const HIDE_DELAY = 480;
+const HOT_ZONE = 12;
+const TRACK_PADDING = 4;
+const MIN_THUMB_SIZE = 24;
+
 let installed = false;
-const hideTimers = new WeakMap<Element, ReturnType<typeof window.setTimeout>>();
-const overlayCleanupTimers = new WeakMap<Element, ReturnType<typeof window.setTimeout>>();
-const overlays = new Map<Element, { vertical: HTMLDivElement; horizontal: HTMLDivElement }>();
-const overlayTargets = new WeakMap<
-  HTMLDivElement,
-  { axis: ScrollbarAxis; target: ScrollbarVisibilityTarget }
->();
-let hoverTarget: ScrollbarVisibilityTarget | null = null;
+let hoverTarget: ScrollTarget | null = null;
 let dragState: DragState | null = null;
+
+const hideTimers = new WeakMap<Element, ReturnType<typeof window.setTimeout>>();
+const removeTimers = new WeakMap<Element, ReturnType<typeof window.setTimeout>>();
+const overlays = new Map<Element, OverlayPair>();
+const overlayBindings = new WeakMap<HTMLDivElement, OverlayBinding>();
 
 function clamp(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
   return Math.min(Math.max(value, min), max);
 }
 
-function maxScrollOffset(domainSize: number, visibleSize: number): number {
+function maxScroll(domainSize: number, visibleSize: number): number {
   return Math.max(0, domainSize - visibleSize);
 }
 
-function readScrollbarMetrics(input: ScrollbarMetricInput): ScrollbarMetrics {
+function thumbMetrics(input: {
+  domainSize: number;
+  scrollOffset: number;
+  trackSize: number;
+  visibleSize: number;
+}): ThumbMetrics {
   const visibleSize = Math.max(0, input.visibleSize);
   const domainSize = Math.max(visibleSize, input.domainSize);
   const trackSize = Math.max(0, input.trackSize);
-  const scrollOffset = clamp(input.scrollOffset, 0, maxScrollOffset(domainSize, visibleSize));
-  const scrollable = domainSize - visibleSize > 1;
-  const proportionalThumbSize = domainSize > 0 ? (trackSize * visibleSize) / domainSize : 0;
-  const minThumbSize = input.minThumbSize ?? 0;
-  const thumbSize = scrollable
-    ? Math.min(trackSize, Math.max(minThumbSize, proportionalThumbSize))
-    : 0;
+  const scrollOffset = clamp(input.scrollOffset, 0, maxScroll(domainSize, visibleSize));
+  const proportionalSize = domainSize > 0 ? (trackSize * visibleSize) / domainSize : 0;
+  const thumbSize =
+    domainSize - visibleSize > 1
+      ? Math.min(trackSize, Math.max(MIN_THUMB_SIZE, proportionalSize))
+      : 0;
   const thumbTrackSize = Math.max(0, trackSize - thumbSize);
-  const thumbOffset = scrollable
-    ? (thumbTrackSize * scrollOffset) / Math.max(1, maxScrollOffset(domainSize, visibleSize))
-    : 0;
 
   return {
     domainSize,
-    scrollable,
-    scrollOffset,
-    thumbOffset,
+    thumbOffset:
+      thumbSize > 0
+        ? (thumbTrackSize * scrollOffset) / Math.max(1, maxScroll(domainSize, visibleSize))
+        : 0,
     thumbSize,
     trackSize,
     visibleSize,
   };
 }
 
-function scrollOffsetForThumbDrag(
-  startScrollOffset: number,
-  pointerDelta: number,
-  metrics: Pick<ScrollbarMetrics, "domainSize" | "thumbSize" | "trackSize" | "visibleSize">,
-): number {
-  const scrollRange = maxScrollOffset(metrics.domainSize, metrics.visibleSize);
+function dragScrollOffset(startScroll: number, pointerDelta: number, metrics: ThumbMetrics): number {
+  const scrollRange = maxScroll(metrics.domainSize, metrics.visibleSize);
   const thumbTrackSize = Math.max(1, metrics.trackSize - metrics.thumbSize);
-  return clamp(startScrollOffset + (pointerDelta * scrollRange) / thumbTrackSize, 0, scrollRange);
+  return clamp(startScroll + (pointerDelta * scrollRange) / thumbTrackSize, 0, scrollRange);
 }
 
-function isVertical(axis: ScrollbarAxis): boolean {
-  return axis === "vertical";
-}
-
-function isDocumentScrollTarget(target: EventTarget | null): boolean {
-  return (
+function resolveTarget(target: EventTarget | null): ScrollTarget | null {
+  if (typeof document === "undefined") return null;
+  if (
     target === window ||
     target === document ||
     target === document.documentElement ||
     target === document.body
-  );
-}
-
-function resolveScrollTarget(target: EventTarget | null): ScrollbarVisibilityTarget | null {
-  if (typeof document === "undefined") return null;
-  if (isDocumentScrollTarget(target)) {
-    return {
-      key: document.documentElement,
-      scroller: window,
-    };
+  ) {
+    return { key: document.documentElement, scroller: window };
   }
-  if (target instanceof Element) {
-    return {
-      key: target,
-      scroller: target,
-    };
-  }
-  return null;
+  return target instanceof Element ? { key: target, scroller: target } : null;
 }
 
-function clearOverlayCleanupTimer(target: Element) {
-  const timer = overlayCleanupTimers.get(target);
-  if (timer === undefined) return;
-  window.clearTimeout(timer);
-  overlayCleanupTimers.delete(target);
-}
-
-function clearHideTimer(target: Element) {
-  const timer = hideTimers.get(target);
-  if (timer === undefined) return;
-  window.clearTimeout(timer);
-  hideTimers.delete(target);
-}
-
-function removeOverlay(target: Element) {
-  const overlay = overlays.get(target);
-  if (!overlay) return;
-  overlayTargets.delete(overlay.vertical);
-  overlayTargets.delete(overlay.horizontal);
-  overlay.vertical.remove();
-  overlay.horizontal.remove();
-  overlays.delete(target);
-}
-
-function ensureOverlay(target: Element) {
-  const existing = overlays.get(target);
-  if (existing) return existing;
-  const vertical = document.createElement("div");
-  const horizontal = document.createElement("div");
-  vertical.className = "global-scrollbar-overlay global-scrollbar-overlay--vertical";
-  horizontal.className = "global-scrollbar-overlay global-scrollbar-overlay--horizontal";
-  vertical.addEventListener("pointerdown", onOverlayPointerDown);
-  horizontal.addEventListener("pointerdown", onOverlayPointerDown);
-  document.body.append(vertical, horizontal);
-  const overlay = { vertical, horizontal };
-  overlays.set(target, overlay);
-  return overlay;
-}
-
-function readMetrics(target: ScrollbarVisibilityTarget) {
-  const scrollerTarget = target.scroller;
-  if (scrollerTarget === window) {
+function readMetrics(target: ScrollTarget): ScrollMetrics {
+  if (target.scroller === window) {
     const scroller = document.scrollingElement ?? document.documentElement;
     return {
+      clientHeight: window.innerHeight,
+      clientWidth: window.innerWidth,
       rect: {
         top: 0,
         right: window.innerWidth,
@@ -177,37 +125,38 @@ function readMetrics(target: ScrollbarVisibilityTarget) {
         width: window.innerWidth,
         height: window.innerHeight,
       },
-      scrollTop: scroller.scrollTop || window.scrollY,
-      scrollLeft: scroller.scrollLeft || window.scrollX,
       scrollHeight: scroller.scrollHeight,
+      scrollLeft: scroller.scrollLeft || window.scrollX,
+      scrollTop: scroller.scrollTop || window.scrollY,
       scrollWidth: scroller.scrollWidth,
-      clientHeight: window.innerHeight,
-      clientWidth: window.innerWidth,
     };
   }
 
-  const element = scrollerTarget as Element;
+  const element = target.scroller as Element;
   const rect = element.getBoundingClientRect();
   return {
-    rect,
-    scrollTop: element.scrollTop,
-    scrollLeft: element.scrollLeft,
-    scrollHeight: element.scrollHeight,
-    scrollWidth: element.scrollWidth,
     clientHeight: element.clientHeight,
     clientWidth: element.clientWidth,
+    rect,
+    scrollHeight: element.scrollHeight,
+    scrollLeft: element.scrollLeft,
+    scrollTop: element.scrollTop,
+    scrollWidth: element.scrollWidth,
   };
 }
 
-function isScrollable(metrics: ReturnType<typeof readMetrics>): boolean {
+function isScrollable(metrics: ScrollMetrics): boolean {
   return metrics.scrollHeight > metrics.clientHeight + 1 || metrics.scrollWidth > metrics.clientWidth + 1;
 }
 
-function isPointerInScrollHotZone(
-  metrics: ReturnType<typeof readMetrics>,
-  clientX: number,
-  clientY: number,
-): boolean {
+function isScrollableAxis(metrics: ScrollMetrics, axis: Axis): boolean {
+  return axis === "vertical"
+    ? metrics.scrollHeight > metrics.clientHeight + 1
+    : metrics.scrollWidth > metrics.clientWidth + 1;
+}
+
+function inHotZone(metrics: ScrollMetrics, event: PointerEvent): boolean {
+  const { clientX, clientY } = event;
   if (
     clientX < metrics.rect.left ||
     clientX > metrics.rect.right ||
@@ -217,91 +166,105 @@ function isPointerInScrollHotZone(
     return false;
   }
 
-  const verticalHotZone =
-    metrics.scrollHeight > metrics.clientHeight + 1 && clientX >= metrics.rect.right - HOVER_HOT_ZONE;
-  const horizontalHotZone =
-    metrics.scrollWidth > metrics.clientWidth + 1 && clientY >= metrics.rect.bottom - HOVER_HOT_ZONE;
-  return verticalHotZone || horizontalHotZone;
+  return (
+    (isScrollableAxis(metrics, "vertical") && clientX >= metrics.rect.right - HOT_ZONE) ||
+    (isScrollableAxis(metrics, "horizontal") && clientY >= metrics.rect.bottom - HOT_ZONE)
+  );
 }
 
-function findScrollableHoverTarget(event: PointerEvent): ScrollbarVisibilityTarget | null {
-  const path = event.composedPath();
-  for (const node of path) {
-    if (!(node instanceof Element)) continue;
-    const target = resolveScrollTarget(node);
+function findHoverTarget(event: PointerEvent): ScrollTarget | null {
+  for (const node of event.composedPath()) {
+    const target = node instanceof Element ? resolveTarget(node) : null;
     if (!target) continue;
     const metrics = readMetrics(target);
-    if (isScrollable(metrics) && isPointerInScrollHotZone(metrics, event.clientX, event.clientY)) {
-      return target;
-    }
+    if (isScrollable(metrics) && inHotZone(metrics, event)) return target;
   }
 
-  const documentTarget = resolveScrollTarget(document);
-  if (documentTarget) {
-    const metrics = readMetrics(documentTarget);
-    if (isScrollable(metrics) && isPointerInScrollHotZone(metrics, event.clientX, event.clientY)) {
-      return documentTarget;
-    }
-  }
-  return null;
+  const documentTarget = resolveTarget(document);
+  if (!documentTarget) return null;
+  const metrics = readMetrics(documentTarget);
+  return isScrollable(metrics) && inHotZone(metrics, event) ? documentTarget : null;
 }
 
-function updateOverlay(target: ScrollbarVisibilityTarget) {
+function clearTimer(map: WeakMap<Element, ReturnType<typeof window.setTimeout>>, target: Element) {
+  const timer = map.get(target);
+  if (timer === undefined) return;
+  window.clearTimeout(timer);
+  map.delete(target);
+}
+
+function removeOverlay(target: Element) {
+  const overlay = overlays.get(target);
+  if (!overlay) return;
+  overlayBindings.delete(overlay.vertical);
+  overlayBindings.delete(overlay.horizontal);
+  overlay.vertical.remove();
+  overlay.horizontal.remove();
+  overlays.delete(target);
+}
+
+function ensureOverlay(target: Element): OverlayPair {
+  const existing = overlays.get(target);
+  if (existing) return existing;
+
+  const overlay = {
+    vertical: document.createElement("div"),
+    horizontal: document.createElement("div"),
+  };
+  overlay.vertical.className = "global-scrollbar-overlay global-scrollbar-overlay--vertical";
+  overlay.horizontal.className = "global-scrollbar-overlay global-scrollbar-overlay--horizontal";
+  overlay.vertical.addEventListener("pointerdown", onOverlayPointerDown);
+  overlay.horizontal.addEventListener("pointerdown", onOverlayPointerDown);
+  document.body.append(overlay.vertical, overlay.horizontal);
+  overlays.set(target, overlay);
+  return overlay;
+}
+
+function updateOverlayAxis(
+  element: HTMLDivElement,
+  target: ScrollTarget,
+  axis: Axis,
+  metrics: ScrollMetrics,
+) {
+  const visible = isScrollableAxis(metrics, axis);
+  overlayBindings.set(element, { axis, target });
+  element.classList.toggle("is-visible", visible);
+
+  if (!visible) {
+    return;
+  }
+
+  const vertical = axis === "vertical";
+  const thumb = thumbMetrics({
+    domainSize: vertical ? metrics.scrollHeight : metrics.scrollWidth,
+    scrollOffset: vertical ? metrics.scrollTop : metrics.scrollLeft,
+    trackSize: Math.max(0, (vertical ? metrics.rect.height : metrics.rect.width) - TRACK_PADDING * 2),
+    visibleSize: vertical ? metrics.clientHeight : metrics.clientWidth,
+  });
+
+  if (vertical) {
+    element.style.top = `${metrics.rect.top + TRACK_PADDING + thumb.thumbOffset}px`;
+    element.style.right = `${Math.max(0, window.innerWidth - metrics.rect.right)}px`;
+    element.style.height = `${thumb.thumbSize}px`;
+    return;
+  }
+
+  element.style.left = `${metrics.rect.left + TRACK_PADDING + thumb.thumbOffset}px`;
+  element.style.bottom = `${Math.max(0, window.innerHeight - metrics.rect.bottom)}px`;
+  element.style.width = `${thumb.thumbSize}px`;
+}
+
+function updateOverlay(target: ScrollTarget) {
   const metrics = readMetrics(target);
-  const verticalScrollable = metrics.scrollHeight > metrics.clientHeight + 1;
-  const horizontalScrollable = metrics.scrollWidth > metrics.clientWidth + 1;
-  if (!verticalScrollable && !horizontalScrollable) {
+  if (!isScrollable(metrics)) {
     removeOverlay(target.key);
     return;
   }
 
-  clearOverlayCleanupTimer(target.key);
+  clearTimer(removeTimers, target.key);
   const overlay = ensureOverlay(target.key);
-  overlayTargets.set(overlay.vertical, { axis: "vertical", target });
-  overlayTargets.set(overlay.horizontal, { axis: "horizontal", target });
-
-  const verticalThumb = verticalScrollable
-    ? readScrollbarMetrics({
-        domainSize: metrics.scrollHeight,
-        minThumbSize: 24,
-        scrollOffset: metrics.scrollTop,
-        trackSize: Math.max(0, metrics.rect.height - TRACK_EDGE_PADDING * 2),
-        visibleSize: metrics.clientHeight,
-      })
-    : null;
-  overlay.vertical.style.top = `${metrics.rect.top + TRACK_EDGE_PADDING + (verticalThumb?.thumbOffset ?? 0)}px`;
-  overlay.vertical.style.right = `${Math.max(0, window.innerWidth - metrics.rect.right)}px`;
-  overlay.vertical.style.height = `${verticalThumb?.thumbSize ?? 0}px`;
-  overlay.vertical.classList.toggle("is-visible", verticalScrollable);
-
-  const horizontalThumb = horizontalScrollable
-    ? readScrollbarMetrics({
-        domainSize: metrics.scrollWidth,
-        minThumbSize: 24,
-        scrollOffset: metrics.scrollLeft,
-        trackSize: Math.max(0, metrics.rect.width - TRACK_EDGE_PADDING * 2),
-        visibleSize: metrics.clientWidth,
-      })
-    : null;
-  overlay.horizontal.style.left = `${metrics.rect.left + TRACK_EDGE_PADDING + (horizontalThumb?.thumbOffset ?? 0)}px`;
-  overlay.horizontal.style.bottom = `${Math.max(0, window.innerHeight - metrics.rect.bottom)}px`;
-  overlay.horizontal.style.width = `${horizontalThumb?.thumbSize ?? 0}px`;
-  overlay.horizontal.classList.toggle("is-visible", horizontalScrollable);
-}
-
-function readAxisMetrics(target: ScrollbarVisibilityTarget, axis: ScrollbarAxis) {
-  const metrics = readMetrics(target);
-  const vertical = isVertical(axis);
-  return {
-    metrics,
-    scrollbar: readScrollbarMetrics({
-      domainSize: vertical ? metrics.scrollHeight : metrics.scrollWidth,
-      minThumbSize: 24,
-      scrollOffset: vertical ? metrics.scrollTop : metrics.scrollLeft,
-      trackSize: Math.max(0, (vertical ? metrics.rect.height : metrics.rect.width) - TRACK_EDGE_PADDING * 2),
-      visibleSize: vertical ? metrics.clientHeight : metrics.clientWidth,
-    }),
-  };
+  updateOverlayAxis(overlay.vertical, target, "vertical", metrics);
+  updateOverlayAxis(overlay.horizontal, target, "horizontal", metrics);
 }
 
 function hideOverlay(target: Element) {
@@ -309,66 +272,76 @@ function hideOverlay(target: Element) {
   if (!overlay) return;
   overlay.vertical.classList.remove("is-visible");
   overlay.horizontal.classList.remove("is-visible");
-  clearOverlayCleanupTimer(target);
-  overlayCleanupTimers.set(
+  clearTimer(removeTimers, target);
+  removeTimers.set(
     target,
     window.setTimeout(() => {
       removeOverlay(target);
-      overlayCleanupTimers.delete(target);
-    }, DEFAULT_HIDE_DELAY),
+      removeTimers.delete(target);
+    }, HIDE_DELAY),
   );
 }
 
-function hideSoon(target: ScrollbarVisibilityTarget) {
-  clearHideTimer(target.key);
+function hideSoon(target: ScrollTarget) {
+  clearTimer(hideTimers, target.key);
   hideTimers.set(
     target.key,
     window.setTimeout(() => {
       hideOverlay(target.key);
       hideTimers.delete(target.key);
-    }, DEFAULT_HIDE_DELAY),
+    }, HIDE_DELAY),
   );
 }
 
-function show(target: ScrollbarVisibilityTarget) {
-  clearHideTimer(target.key);
+function show(target: ScrollTarget) {
+  clearTimer(hideTimers, target.key);
   updateOverlay(target);
 }
 
-function setScrollPosition(target: ScrollbarVisibilityTarget, axis: ScrollbarAxis, value: number) {
+function axisMetrics(target: ScrollTarget, axis: Axis) {
   const metrics = readMetrics(target);
-  const scrollerTarget = target.scroller;
-  if (scrollerTarget === window) {
-    const nextLeft = axis === "horizontal" ? value : metrics.scrollLeft;
-    const nextTop = axis === "vertical" ? value : metrics.scrollTop;
-    window.scrollTo(nextLeft, nextTop);
+  const vertical = axis === "vertical";
+  return {
+    metrics,
+    thumb: thumbMetrics({
+      domainSize: vertical ? metrics.scrollHeight : metrics.scrollWidth,
+      scrollOffset: vertical ? metrics.scrollTop : metrics.scrollLeft,
+      trackSize: Math.max(0, (vertical ? metrics.rect.height : metrics.rect.width) - TRACK_PADDING * 2),
+      visibleSize: vertical ? metrics.clientHeight : metrics.clientWidth,
+    }),
+  };
+}
+
+function setScroll(target: ScrollTarget, axis: Axis, value: number) {
+  const metrics = readMetrics(target);
+  if (target.scroller === window) {
+    window.scrollTo(
+      axis === "horizontal" ? value : metrics.scrollLeft,
+      axis === "vertical" ? value : metrics.scrollTop,
+    );
     return;
   }
 
-  const element = scrollerTarget as Element;
-  if (axis === "vertical") {
-    element.scrollTop = value;
-  } else {
-    element.scrollLeft = value;
-  }
+  const element = target.scroller as Element;
+  if (axis === "vertical") element.scrollTop = value;
+  else element.scrollLeft = value;
 }
 
 function onOverlayPointerDown(event: PointerEvent) {
-  const overlayTarget = overlayTargets.get(event.currentTarget as HTMLDivElement);
-  if (!overlayTarget) return;
-  const { metrics, scrollbar } = readAxisMetrics(overlayTarget.target, overlayTarget.axis);
+  const binding = overlayBindings.get(event.currentTarget as HTMLDivElement);
+  if (!binding) return;
+
+  const { metrics, thumb } = axisMetrics(binding.target, binding.axis);
+  const vertical = binding.axis === "vertical";
   event.preventDefault();
   event.stopPropagation();
-  show(overlayTarget.target);
+  show(binding.target);
   dragState = {
-    axis: overlayTarget.axis,
-    metrics: scrollbar,
+    ...binding,
+    metrics: thumb,
     pointerId: Number.isFinite(event.pointerId) ? event.pointerId : null,
-    startX: event.clientX,
-    startY: event.clientY,
-    startScrollLeft: metrics.scrollLeft,
-    startScrollTop: metrics.scrollTop,
-    target: overlayTarget.target,
+    startPointer: vertical ? event.clientY : event.clientX,
+    startScroll: vertical ? metrics.scrollTop : metrics.scrollLeft,
   };
   window.addEventListener("pointerup", onDragPointerEnd, true);
   window.addEventListener("pointercancel", onDragPointerEnd, true);
@@ -376,12 +349,13 @@ function onOverlayPointerDown(event: PointerEvent) {
 
 function onDragPointerMove(event: PointerEvent) {
   if (!dragState || (dragState.pointerId !== null && event.pointerId !== dragState.pointerId)) return;
-  const vertical = isVertical(dragState.axis);
-  const delta = vertical ? event.clientY - dragState.startY : event.clientX - dragState.startX;
-  const startScroll = vertical ? dragState.startScrollTop : dragState.startScrollLeft;
-  const nextScroll = scrollOffsetForThumbDrag(startScroll, delta, dragState.metrics);
+  const pointer = dragState.axis === "vertical" ? event.clientY : event.clientX;
   event.preventDefault();
-  setScrollPosition(dragState.target, dragState.axis, nextScroll);
+  setScroll(
+    dragState.target,
+    dragState.axis,
+    dragScrollOffset(dragState.startScroll, pointer - dragState.startPointer, dragState.metrics),
+  );
   show(dragState.target);
 }
 
@@ -395,15 +369,9 @@ function onDragPointerEnd(event: PointerEvent) {
 }
 
 function onScroll(event: Event) {
-  const target = resolveScrollTarget(event.target);
+  const target = resolveTarget(event.target);
   if (!target) return;
   show(target);
-  hideSoon(target);
-}
-
-function onScrollEnd(event: Event) {
-  const target = resolveScrollTarget(event.target);
-  if (!target) return;
   hideSoon(target);
 }
 
@@ -413,15 +381,14 @@ function onPointerMove(event: PointerEvent) {
     return;
   }
 
-  const target = findScrollableHoverTarget(event);
+  const target = findHoverTarget(event);
   if (target) {
-    if (hoverTarget?.key && hoverTarget.key !== target.key) {
-      hideSoon(hoverTarget);
-    }
+    if (hoverTarget?.key && hoverTarget.key !== target.key) hideSoon(hoverTarget);
     hoverTarget = target;
     show(target);
     return;
   }
+
   if (hoverTarget) {
     hideSoon(hoverTarget);
     hoverTarget = null;
@@ -438,7 +405,6 @@ export function uninstallGlobalScrollbarVisibility() {
   if (!installed || typeof window === "undefined") return;
   installed = false;
   window.removeEventListener("scroll", onScroll, true);
-  window.removeEventListener("scrollend", onScrollEnd, true);
   window.removeEventListener("pointermove", onPointerMove, true);
   window.removeEventListener("pointerleave", onPointerLeave);
   window.removeEventListener("pointerup", onDragPointerEnd, true);
@@ -446,8 +412,8 @@ export function uninstallGlobalScrollbarVisibility() {
   hoverTarget = null;
   dragState = null;
   overlays.forEach((_overlay, target) => {
-    clearHideTimer(target);
-    clearOverlayCleanupTimer(target);
+    clearTimer(hideTimers, target);
+    clearTimer(removeTimers, target);
     removeOverlay(target);
   });
 }
@@ -456,7 +422,6 @@ export function installGlobalScrollbarVisibility() {
   if (installed || typeof window === "undefined") return uninstallGlobalScrollbarVisibility;
   installed = true;
   window.addEventListener("scroll", onScroll, { capture: true, passive: true });
-  window.addEventListener("scrollend", onScrollEnd, { capture: true });
   window.addEventListener("pointermove", onPointerMove, { capture: true });
   window.addEventListener("pointerleave", onPointerLeave);
   return uninstallGlobalScrollbarVisibility;
