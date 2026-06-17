@@ -234,6 +234,23 @@ describe("Lilia 外壳样式迁移", () => {
     expect(styles).toContain("corner-shape: var(--app-corner-shape)");
   });
 
+  it("全局滚动条使用隐藏原生条和 overlay 显隐样式", () => {
+    const styles = readFileSync(resolve("src/styles.css"), "utf-8").replace(/\r\n/g, "\n");
+    const main = readFileSync(resolve("src/main.ts"), "utf-8");
+    const scrollbars = readFileSync(resolve("src/composables/useGlobalScrollbarVisibility.ts"), "utf-8");
+
+    expect(styles).toContain("scrollbar-width: none");
+    expect(styles).toContain("::-webkit-scrollbar {\n  width: 0;\n  height: 0;");
+    expect(styles).toContain(".global-scrollbar-overlay");
+    expect(styles).toContain("transition: opacity 0.48s ease");
+    expect(styles).toContain(".global-scrollbar-overlay.is-visible");
+    expect(main).toContain(
+      'import { installGlobalScrollbarVisibility } from "./composables/useGlobalScrollbarVisibility"',
+    );
+    expect(scrollbars).toContain("export function installGlobalScrollbarVisibility()");
+    expect(scrollbars).toContain("export function uninstallGlobalScrollbarVisibility()");
+  });
+
   it("保留 Lilia 侧边栏行内工具的悬停显隐动画", () => {
     const secondaryPanel = readFileSync(resolve("src/layouts/SecondaryPanel.vue"), "utf-8");
     const rowTools = readFileSync(resolve("src/components/sidebar/SidebarRowTools.vue"), "utf-8");
