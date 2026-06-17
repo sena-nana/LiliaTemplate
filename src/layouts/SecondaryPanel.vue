@@ -156,14 +156,14 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
   flex: 1;
   height: 30px;
   padding: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .sb-icon-btn {
   width: 22px;
   height: 22px;
   padding: 0;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .sb-action:hover,
@@ -193,7 +193,7 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
   gap: 6px;
   height: 28px;
   padding: 0 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--text);
   text-decoration: none;
   font-size: 13px;

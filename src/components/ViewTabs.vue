@@ -52,7 +52,7 @@ const tabs: Array<{ key: ViewKey; label: string; icon: unknown; disabled: boolea
   margin-bottom: -1px;
   border: 0;
   border-bottom: 2px solid transparent;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;

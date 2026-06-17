@@ -223,6 +223,17 @@ describe("Lilia 外壳样式迁移", () => {
     expect(styles).toContain("background: transparent");
   });
 
+  it("全局圆角样式通过 corner-shape 渐进增强", () => {
+    const styles = readFileSync(resolve("src/styles.css"), "utf-8");
+
+    expect(styles).toContain("--app-corner-shape: squircle");
+    expect(styles).toContain("--app-corner-radius: 8px");
+    expect(styles).toContain("--radius-md: var(--app-corner-radius)");
+    expect(styles).toContain(':root[data-corners="round"]');
+    expect(styles).toContain("@supports (corner-shape: squircle)");
+    expect(styles).toContain("corner-shape: var(--app-corner-shape)");
+  });
+
   it("保留 Lilia 侧边栏行内工具的悬停显隐动画", () => {
     const secondaryPanel = readFileSync(resolve("src/layouts/SecondaryPanel.vue"), "utf-8");
     const rowTools = readFileSync(resolve("src/components/sidebar/SidebarRowTools.vue"), "utf-8");

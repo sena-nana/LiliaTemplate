@@ -74,7 +74,7 @@ watch(
   background: var(--bg-elev);
   color: var(--text);
   border: 1px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.55);
   display: flex;
   flex-direction: column;
@@ -90,7 +90,7 @@ watch(
   min-width: 0;
   padding: 0 10px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
   cursor: pointer;

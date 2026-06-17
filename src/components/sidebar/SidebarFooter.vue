@@ -54,7 +54,7 @@ defineProps<{
   width: 26px;
   height: 26px;
   border: 0;
-  border-radius: 5px;
+  border-radius: calc(var(--app-corner-radius) * 0.625);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -91,7 +91,7 @@ defineProps<{
   height: 20px;
   padding: 0 7px;
   margin-left: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.2px;

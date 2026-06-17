@@ -182,7 +182,7 @@ async function onClose() {
   padding: 0;
   margin: 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;

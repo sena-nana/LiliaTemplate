@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/vue";
+import { fireEvent, render, screen } from "@testing-library/vue";
 import { createMemoryHistory } from "vue-router";
 import { describe, expect, it } from "vitest";
 import App from "../src/App.vue";
@@ -42,7 +42,43 @@ describe("基础路由", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "外观" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "设置分类" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /外观/ })).toHaveClass("is-active");
+    expect(await screen.findByRole("radiogroup", { name: "圆角" })).toBeInTheDocument();
+    expect(screen.getByRole("slider", { name: "圆角半径" })).toBeInTheDocument();
     expect(screen.queryByText(/Claude|Codex|CC-Switch|agent/i)).toBeNull();
+  });
+
+  it("外观页圆角设置可即时切换全局 data-corners", async () => {
+    await renderAt("/settings");
+
+    const smooth = await screen.findByRole("radio", { name: /平滑/ });
+    const round = screen.getByRole("radio", { name: /普通/ });
+
+    expect(smooth).toHaveClass("is-active");
+    expect(document.documentElement.dataset.corners).toBe("smooth");
+
+    await fireEvent.click(round);
+
+    expect(round).toHaveClass("is-active");
+    expect(document.documentElement.dataset.corners).toBe("round");
+
+    await fireEvent.click(smooth);
+
+    expect(smooth).toHaveClass("is-active");
+    expect(document.documentElement.dataset.corners).toBe("smooth");
+  });
+
+  it("外观页圆角半径设置可即时切换全局半径变量", async () => {
+    await renderAt("/settings");
+
+    const radius = await screen.findByRole("slider", { name: "圆角半径" });
+
+    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("8px");
+    expect(screen.getByText("8px")).toBeInTheDocument();
+
+    await fireEvent.input(radius, { target: { value: "14" } });
+
+    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("14px");
+    expect(screen.getByText("14px")).toBeInTheDocument();
   });
 
   it("设置页可通过 tab query 显示关于页，未知 tab 回落外观", async () => {
