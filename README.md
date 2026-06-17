@@ -33,3 +33,16 @@ yarn verify
 ## 应用信息
 
 修改根目录的 `app.config.json` 后运行 `yarn sync:app-config`，会同步更新前端展示、`package.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml`。
+
+## 版本提升（本地）
+
+本地发布前可先执行：
+
+```bash
+yarn version:bump patch
+yarn version:bump minor
+yarn version:bump major
+yarn version:bump 1.2.3
+```
+
+`version:bump` 会先校验版本号合法性，更新 `app.config.json` 中的版本，再同步到 `package.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml`，便于后续 `git commit` 与 `workflow` 打 tag 发布。
