@@ -69,7 +69,7 @@ function onKeydown(event: KeyboardEvent) {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1800;
+  z-index: var(--z-dialog);
   display: flex;
   align-items: flex-start;
   justify-content: center;

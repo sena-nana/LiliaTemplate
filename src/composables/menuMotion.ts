@@ -13,7 +13,12 @@ export interface MenuTransformOrigin {
 export type MenuPlacement = "top" | "bottom";
 
 export const SB_MENU_EDGE_PADDING = 4;
+export const SB_MENU_GAP = 6;
 export const SB_MENU_POP_TRANSITION_MS = 180;
+export const SB_LAYER_Z_INDEX = {
+  dropdown: 1900,
+  contextMenu: 2000,
+} as const;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -26,6 +31,19 @@ export function createAnchoredMenuPosition(
   anchorY = y,
 ): AnchoredMenuPosition {
   return { x, y, anchorX, anchorY };
+}
+
+export function createPlacedAnchoredMenuPosition(
+  triggerRect: DOMRect,
+  placement: MenuPlacement,
+  height = 0,
+  anchorX = triggerRect.left + triggerRect.width / 2,
+): AnchoredMenuPosition {
+  const y = placement === "bottom"
+    ? triggerRect.bottom + SB_MENU_GAP
+    : triggerRect.top - height - SB_MENU_GAP;
+  const anchorY = placement === "bottom" ? triggerRect.bottom : triggerRect.top;
+  return createAnchoredMenuPosition(triggerRect.left, y, anchorX, anchorY);
 }
 
 export function clampAnchoredMenuPosition(

@@ -1,8 +1,14 @@
 <script setup lang="ts" generic="T extends string | number">
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { ChevronDown } from "@lucide/vue";
-import { SB_MENU_POP_TRANSITION_MS } from "../composables/menuMotion";
-import { useAnchoredMenuMotion } from "../composables/useAnchoredMenuMotion";
+import {
+  SB_LAYER_Z_INDEX,
+  SB_MENU_POP_TRANSITION_MS,
+  clampAnchoredMenuPosition,
+  createAnchoredMenuPosition,
+  createPlacedAnchoredMenuPosition,
+  resolveMenuTransformOrigin,
+} from "../composables/menuMotion";
 
 interface Option {
   value: T;
@@ -22,22 +28,27 @@ const props = defineProps<{
 const emit = defineEmits<{ "update:modelValue": [value: T] }>();
 
 const open = ref(false);
+const root = ref<HTMLElement | null>(null);
+const triggerEl = ref<HTMLElement | null>(null);
+const menuEl = ref<HTMLElement | null>(null);
 const placement = computed(() => props.placement === "bottom" ? "bottom" : "top");
-const menuMotion = useAnchoredMenuMotion(placement);
-const root = menuMotion.rootEl;
-const origin = menuMotion.origin;
+const pos = ref(createAnchoredMenuPosition(0, 0));
+const origin = ref({ x: 0, y: 0 });
+const anchorX = ref<number | null>(null);
 
 const current = computed(() =>
   props.options.find((option) => option.value === props.modelValue),
 );
 
-const placementClass = computed(() =>
-  props.placement === "bottom" ? "dd__menu--bottom" : "dd__menu--top",
-);
-
 function toggle(event: MouseEvent) {
   if (props.disabled) return;
-  menuMotion.captureAnchor(event);
+  const trigger = triggerEl.value ?? root.value;
+  if (trigger) {
+    const rect = trigger.getBoundingClientRect();
+    anchorX.value = Number.isFinite(event.clientX) && event.clientX > 0
+      ? event.clientX
+      : rect.left + rect.width / 2;
+  }
   open.value = !open.value;
 }
 
@@ -47,8 +58,11 @@ function pick(option: Option) {
 }
 
 function onDocPointer(event: PointerEvent) {
-  if (!root.value) return;
-  if (!root.value.contains(event.target as Node)) open.value = false;
+  const target = event.target as Node | null;
+  if (!target) return;
+  if (root.value?.contains(target)) return;
+  if (menuEl.value?.contains(target)) return;
+  open.value = false;
 }
 
 function onKey(event: KeyboardEvent) {
@@ -58,28 +72,62 @@ function onKey(event: KeyboardEvent) {
   }
 }
 
+function closeMenu() {
+  open.value = false;
+}
+
+function updatePosition(width = 0, height = 0) {
+  const trigger = triggerEl.value ?? root.value;
+  if (!trigger) return;
+  const nextPos = createPlacedAnchoredMenuPosition(
+    trigger.getBoundingClientRect(),
+    placement.value,
+    height,
+    anchorX.value ?? undefined,
+  );
+  pos.value = width > 0 && height > 0
+    ? clampAnchoredMenuPosition(nextPos, width, height)
+    : nextPos;
+  origin.value = resolveMenuTransformOrigin(
+    pos.value,
+    width > 0 ? width : Number.POSITIVE_INFINITY,
+    height > 0 ? height : Number.POSITIVE_INFINITY,
+  );
+}
+
 watch(open, async (value) => {
   if (value) {
-    menuMotion.resolveInitialOrigin();
-    await menuMotion.updateOrigin();
+    updatePosition();
+    await nextTick();
+    const element = menuEl.value;
+    if (element) updatePosition(element.offsetWidth, element.offsetHeight);
     document.addEventListener("pointerdown", onDocPointer, true);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", closeMenu, true);
+    window.addEventListener("resize", closeMenu);
+    window.addEventListener("blur", closeMenu);
   } else {
     document.removeEventListener("pointerdown", onDocPointer, true);
     document.removeEventListener("keydown", onKey);
+    window.removeEventListener("scroll", closeMenu, true);
+    window.removeEventListener("resize", closeMenu);
+    window.removeEventListener("blur", closeMenu);
   }
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener("pointerdown", onDocPointer, true);
   document.removeEventListener("keydown", onKey);
+  window.removeEventListener("scroll", closeMenu, true);
+  window.removeEventListener("resize", closeMenu);
+  window.removeEventListener("blur", closeMenu);
 });
 </script>
 
 <template>
   <div ref="root" class="dd">
     <button
-      :ref="menuMotion.triggerEl"
+      ref="triggerEl"
       type="button"
       class="chat-chip"
       :class="{ 'is-open': open, 'is-disabled': disabled }"
@@ -94,15 +142,18 @@ onBeforeUnmount(() => {
       </span>
       <ChevronDown :size="12" aria-hidden="true" class="chat-chip__caret" />
     </button>
-
+  </div>
+  <Teleport to="body">
     <Transition name="sb-menu-pop" :duration="SB_MENU_POP_TRANSITION_MS">
       <div
         v-if="open"
-        :ref="menuMotion.menuEl"
+        ref="menuEl"
         class="dd__menu"
-        :class="placementClass"
         role="listbox"
         :style="{
+          left: `${pos.x}px`,
+          top: `${pos.y}px`,
+          zIndex: String(SB_LAYER_Z_INDEX.dropdown),
           '--sb-menu-origin-x': `${origin.x}px`,
           '--sb-menu-origin-y': `${origin.y}px`,
         }"
@@ -122,7 +173,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
     </Transition>
-  </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -161,8 +212,7 @@ onBeforeUnmount(() => {
 }
 
 .dd__menu {
-  position: absolute;
-  left: 0;
+  position: fixed;
   min-width: 180px;
   max-width: 280px;
   background: var(--bg-elev);
@@ -173,17 +223,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 1px;
   box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
-  z-index: 20;
   transform-origin: var(--sb-menu-origin-x, 0px) var(--sb-menu-origin-y, 0px);
   will-change: transform, opacity;
-}
-
-.dd__menu--top {
-  bottom: calc(100% + 6px);
-}
-
-.dd__menu--bottom {
-  top: calc(100% + 6px);
 }
 
 .dd__item {

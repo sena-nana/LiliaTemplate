@@ -8,6 +8,7 @@ import {
   type ContextMenuItem,
 } from "../composables/useContextMenu";
 import {
+  SB_LAYER_Z_INDEX,
   clampAnchoredMenuPosition,
   createAnchoredMenuPosition,
   resolveMenuTransformOrigin,
@@ -79,6 +80,7 @@ watch(
         :style="{
           left: `${pos.x}px`,
           top: `${pos.y}px`,
+          zIndex: String(SB_LAYER_Z_INDEX.contextMenu),
           '--sb-menu-origin-x': `${origin.x}px`,
           '--sb-menu-origin-y': `${origin.y}px`,
         }"
@@ -107,7 +109,6 @@ watch(
 <style scoped>
 .ctx-menu {
   position: fixed;
-  z-index: 2000;
   min-width: 180px;
   max-width: min(320px, calc(100vw - 8px));
   padding: 4px;
