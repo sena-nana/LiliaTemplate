@@ -145,17 +145,26 @@ function readMetrics(target: ScrollTarget): ScrollMetrics {
   };
 }
 
-function isScrollable(metrics: ScrollMetrics): boolean {
-  return metrics.scrollHeight > metrics.clientHeight + 1 || metrics.scrollWidth > metrics.clientWidth + 1;
+function hasScrollableOverflow(target: ScrollTarget, metrics: ScrollMetrics, axis: Axis): boolean {
+  const hasOverflow =
+    axis === "vertical"
+      ? metrics.scrollHeight > metrics.clientHeight + 1
+      : metrics.scrollWidth > metrics.clientWidth + 1;
+  if (!hasOverflow) return false;
+  if (target.scroller === window) return true;
+  const style = window.getComputedStyle(target.scroller as Element);
+  const overflow = axis === "vertical" ? style.overflowY : style.overflowX;
+  return overflow === "auto" || overflow === "scroll";
 }
 
-function isScrollableAxis(metrics: ScrollMetrics, axis: Axis): boolean {
-  return axis === "vertical"
-    ? metrics.scrollHeight > metrics.clientHeight + 1
-    : metrics.scrollWidth > metrics.clientWidth + 1;
+function hasScrollableOverflowOnAnyAxis(target: ScrollTarget, metrics: ScrollMetrics): boolean {
+  return (
+    hasScrollableOverflow(target, metrics, "vertical") ||
+    hasScrollableOverflow(target, metrics, "horizontal")
+  );
 }
 
-function inHotZone(metrics: ScrollMetrics, event: PointerEvent): boolean {
+function inHotZone(target: ScrollTarget, metrics: ScrollMetrics, event: PointerEvent): boolean {
   const { clientX, clientY } = event;
   if (
     clientX < metrics.rect.left ||
@@ -167,8 +176,8 @@ function inHotZone(metrics: ScrollMetrics, event: PointerEvent): boolean {
   }
 
   return (
-    (isScrollableAxis(metrics, "vertical") && clientX >= metrics.rect.right - HOT_ZONE) ||
-    (isScrollableAxis(metrics, "horizontal") && clientY >= metrics.rect.bottom - HOT_ZONE)
+    (hasScrollableOverflow(target, metrics, "vertical") && clientX >= metrics.rect.right - HOT_ZONE) ||
+    (hasScrollableOverflow(target, metrics, "horizontal") && clientY >= metrics.rect.bottom - HOT_ZONE)
   );
 }
 
@@ -177,13 +186,15 @@ function findHoverTarget(event: PointerEvent): ScrollTarget | null {
     const target = node instanceof Element ? resolveTarget(node) : null;
     if (!target) continue;
     const metrics = readMetrics(target);
-    if (isScrollable(metrics) && inHotZone(metrics, event)) return target;
+    if (hasScrollableOverflowOnAnyAxis(target, metrics) && inHotZone(target, metrics, event)) return target;
   }
 
   const documentTarget = resolveTarget(document);
   if (!documentTarget) return null;
   const metrics = readMetrics(documentTarget);
-  return isScrollable(metrics) && inHotZone(metrics, event) ? documentTarget : null;
+  return hasScrollableOverflowOnAnyAxis(documentTarget, metrics) && inHotZone(documentTarget, metrics, event)
+    ? documentTarget
+    : null;
 }
 
 function clearTimer(map: WeakMap<Element, ReturnType<typeof window.setTimeout>>, target: Element) {
@@ -226,7 +237,7 @@ function updateOverlayAxis(
   axis: Axis,
   metrics: ScrollMetrics,
 ) {
-  const visible = isScrollableAxis(metrics, axis);
+  const visible = hasScrollableOverflow(target, metrics, axis);
   overlayBindings.set(element, { axis, target });
   element.classList.toggle("is-visible", visible);
 
@@ -256,7 +267,7 @@ function updateOverlayAxis(
 
 function updateOverlay(target: ScrollTarget) {
   const metrics = readMetrics(target);
-  if (!isScrollable(metrics)) {
+  if (!hasScrollableOverflowOnAnyAxis(target, metrics)) {
     removeOverlay(target.key);
     return;
   }
