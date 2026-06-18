@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { Copy, FolderOpen, MousePointer2, Pencil, Trash2 } from "@lucide/vue";
+import Dropdown from "../components/Dropdown.vue";
 import ViewTabs from "../components/ViewTabs.vue";
 import { APP_SHELL_COPY } from "../config/appShell";
 import "../styles/page.css";
@@ -16,6 +18,17 @@ const cardMenu = [
     onSelect: () => {},
   },
 ];
+
+const menuMotionOptions: Array<{
+  value: "bottom" | "top";
+  label: string;
+  hint: string;
+}> = [
+  { value: "bottom", label: "向下展开", hint: "从按钮点击点展开菜单" },
+  { value: "top", label: "向上展开", hint: "用于贴近页面底部的场景" },
+];
+
+const menuMotionValue = ref<"bottom" | "top">("bottom");
 </script>
 
 <template>
@@ -53,6 +66,18 @@ const cardMenu = [
           <li><span>前端构建</span><span>yarn build</span></li>
           <li><span>完整验证</span><span>yarn verify</span></li>
         </ul>
+      </div>
+      <div class="card">
+        <h2>Dropdown 动效</h2>
+        <p class="muted">
+          模板已抽出与右键菜单一致的锚点缩放过渡，可复用在普通下拉中。
+        </p>
+        <Dropdown
+          v-model="menuMotionValue"
+          :options="menuMotionOptions"
+          placement="bottom"
+          placeholder="选择菜单动效"
+        />
       </div>
     </div>
   </section>

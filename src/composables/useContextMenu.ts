@@ -1,4 +1,5 @@
 import { reactive, type Component } from "vue";
+import { createAnchoredMenuPosition } from "./menuMotion";
 
 export interface ContextMenuItem {
   id?: string;
@@ -18,16 +19,22 @@ interface MenuState {
   open: boolean;
   x: number;
   y: number;
+  anchorX: number;
+  anchorY: number;
   items: ContextMenuItem[];
   pendingConfirmId: string | null;
+  openSeq: number;
 }
 
 const state = reactive<MenuState>({
   open: false,
   x: 0,
   y: 0,
+  anchorX: 0,
+  anchorY: 0,
   items: [],
   pendingConfirmId: null,
+  openSeq: 0,
 });
 
 const providers = new WeakMap<Element, ContextMenuProvider>();
@@ -57,11 +64,15 @@ function collectItemsFor(event: MouseEvent): ContextMenuItem[] {
 }
 
 function openMenu(x: number, y: number, items: ContextMenuItem[]) {
+  const position = createAnchoredMenuPosition(x, y);
   state.items = items;
-  state.x = x;
-  state.y = y;
+  state.x = position.x;
+  state.y = position.y;
+  state.anchorX = position.anchorX;
+  state.anchorY = position.anchorY;
   state.open = items.length > 0;
   state.pendingConfirmId = null;
+  state.openSeq += 1;
 }
 
 export function openContextMenuAt(
@@ -76,6 +87,10 @@ export function openContextMenuAt(
 export function closeContextMenu() {
   if (!state.open) return;
   state.open = false;
+}
+
+export function finalizeClosedContextMenu() {
+  if (state.open) return;
   state.items = [];
   state.pendingConfirmId = null;
 }
@@ -140,6 +155,7 @@ export function useContextMenu() {
   return {
     state,
     close: closeContextMenu,
+    finalizeClose: finalizeClosedContextMenu,
     select: selectContextMenuItem,
   };
 }

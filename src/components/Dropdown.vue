@@ -1,6 +1,8 @@
 <script setup lang="ts" generic="T extends string | number">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { ChevronDown } from "@lucide/vue";
+import { SB_MENU_POP_TRANSITION_MS } from "../composables/menuMotion";
+import { useAnchoredMenuMotion } from "../composables/useAnchoredMenuMotion";
 
 interface Option {
   value: T;
@@ -20,14 +22,22 @@ const props = defineProps<{
 const emit = defineEmits<{ "update:modelValue": [value: T] }>();
 
 const open = ref(false);
-const root = ref<HTMLElement | null>(null);
+const placement = computed(() => props.placement === "bottom" ? "bottom" : "top");
+const menuMotion = useAnchoredMenuMotion(placement);
+const root = menuMotion.rootEl;
+const origin = menuMotion.origin;
 
 const current = computed(() =>
   props.options.find((option) => option.value === props.modelValue),
 );
 
-function toggle() {
+const placementClass = computed(() =>
+  props.placement === "bottom" ? "dd__menu--bottom" : "dd__menu--top",
+);
+
+function toggle(event: MouseEvent) {
   if (props.disabled) return;
+  menuMotion.captureAnchor(event);
   open.value = !open.value;
 }
 
@@ -50,7 +60,8 @@ function onKey(event: KeyboardEvent) {
 
 watch(open, async (value) => {
   if (value) {
-    await nextTick();
+    menuMotion.resolveInitialOrigin();
+    await menuMotion.updateOrigin();
     document.addEventListener("pointerdown", onDocPointer, true);
     document.addEventListener("keydown", onKey);
   } else {
@@ -68,6 +79,7 @@ onBeforeUnmount(() => {
 <template>
   <div ref="root" class="dd">
     <button
+      :ref="menuMotion.triggerEl"
       type="button"
       class="chat-chip"
       :class="{ 'is-open': open, 'is-disabled': disabled }"
@@ -83,26 +95,33 @@ onBeforeUnmount(() => {
       <ChevronDown :size="12" aria-hidden="true" class="chat-chip__caret" />
     </button>
 
-    <div
-      v-if="open"
-      class="dd__menu"
-      :class="placement === 'bottom' ? 'dd__menu--bottom' : 'dd__menu--top'"
-      role="listbox"
-    >
-      <button
-        v-for="option in options"
-        :key="String(option.value)"
-        type="button"
-        class="dd__item"
-        :class="{ 'is-active': option.value === modelValue }"
-        role="option"
-        :aria-selected="option.value === modelValue"
-        @click="pick(option)"
+    <Transition name="sb-menu-pop" :duration="SB_MENU_POP_TRANSITION_MS">
+      <div
+        v-if="open"
+        :ref="menuMotion.menuEl"
+        class="dd__menu"
+        :class="placementClass"
+        role="listbox"
+        :style="{
+          '--sb-menu-origin-x': `${origin.x}px`,
+          '--sb-menu-origin-y': `${origin.y}px`,
+        }"
       >
-        <span class="dd__item-label">{{ option.label }}</span>
-        <span v-if="option.hint" class="dd__item-hint">{{ option.hint }}</span>
-      </button>
-    </div>
+        <button
+          v-for="option in options"
+          :key="String(option.value)"
+          type="button"
+          class="dd__item"
+          :class="{ 'is-active': option.value === modelValue }"
+          role="option"
+          :aria-selected="option.value === modelValue"
+          @click="pick(option)"
+        >
+          <span class="dd__item-label">{{ option.label }}</span>
+          <span v-if="option.hint" class="dd__item-hint">{{ option.hint }}</span>
+        </button>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -155,6 +174,8 @@ onBeforeUnmount(() => {
   gap: 1px;
   box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
   z-index: 20;
+  transform-origin: var(--sb-menu-origin-x, 0px) var(--sb-menu-origin-y, 0px);
+  will-change: transform, opacity;
 }
 
 .dd__menu--top {
