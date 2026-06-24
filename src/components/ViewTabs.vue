@@ -28,6 +28,7 @@ const tabs: Array<{ key: ViewKey; label: string; icon: unknown; disabled: boolea
       :aria-selected="active === tab.key"
       :title="tab.disabled ? '即将上线' : tab.label"
       role="tab"
+      :data-agent-id="`view-tabs.${tab.key}`"
     >
       <component :is="tab.icon" :size="14" aria-hidden="true" />
       <span>{{ tab.label }}</span>

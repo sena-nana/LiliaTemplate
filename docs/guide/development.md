@@ -13,7 +13,7 @@ Tauri-Template/
 │   └── styles.css
 ├── src-tauri/           # Tauri 2 Rust 端
 ├── tests/               # Vitest + Testing Library
-└── scripts/             # 本地开发脚本
+└── scripts/             # 本地开发脚本, 包含 agent-debug.mjs 诊断入口
 ```
 
 ## 本地运行
@@ -26,9 +26,24 @@ corepack prepare yarn@4.14.1 --activate
 yarn install
 yarn dev
 yarn tauri:dev
+yarn agent:debug
 ```
 
 `yarn tauri:dev` 会自动寻找可用本地端口,再把对应 `devUrl` 传给 Tauri。
+
+## Agent 调试
+
+模板只迁移 Lilia 对 Agent 友好的结构,不迁移 Claude / Codex / agent runner 业务。Agent 排查问题时优先从仓库根目录运行:
+
+```bash
+yarn agent:debug
+```
+
+该命令会列出项目边界、关键文件、推荐验证入口和结构检查结果。需要机器可读输出时使用:
+
+```bash
+yarn agent:debug --json
+```
 
 ## 验证
 

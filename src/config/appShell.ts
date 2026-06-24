@@ -41,6 +41,7 @@ export interface SidebarActionItem {
 }
 
 export interface SidebarNavItem {
+  key: string;
   to?: string;
   label: string;
   icon: Component;
@@ -49,6 +50,7 @@ export interface SidebarNavItem {
 }
 
 export interface SidebarGroup {
+  key: string;
   title: string;
   tools?: SidebarActionItem[];
   items?: SidebarNavItem[];
@@ -56,6 +58,7 @@ export interface SidebarGroup {
 }
 
 export interface SidebarFooterLink {
+  key: string;
   to: string;
   label: string;
   title?: string;
@@ -77,6 +80,7 @@ export const SIDEBAR_GLOBAL_ACTIONS: SidebarActionItem[] = [
 
 export const SIDEBAR_NAV: SidebarNavItem[] = [
   {
+    key: "overview",
     to: "/",
     label: "概览",
     icon: Home,
@@ -86,10 +90,12 @@ export const SIDEBAR_NAV: SidebarNavItem[] = [
 
 export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
+    key: "example",
     title: "示例分组",
     tools: [{ key: "more", label: "更多", icon: MoreHorizontal, disabled: true }],
     items: [
       {
+        key: "workspace",
         label: APP_SHELL_COPY.workspaceName,
         icon: Folder,
         disabled: true,
@@ -101,8 +107,8 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
 ];
 
 export const SIDEBAR_FOOTER_LINKS: SidebarFooterLink[] = [
-  { to: "/settings", label: "设置", icon: Settings },
-  { to: "/plugins", label: "扩展", icon: Puzzle },
+  { key: "settings", to: "/settings", label: "设置", icon: Settings },
+  { key: "plugins", to: "/plugins", label: "扩展", icon: Puzzle },
 ];
 
 export const SIDEBAR_FOOTER_STATUS: SidebarFooterStatus = {

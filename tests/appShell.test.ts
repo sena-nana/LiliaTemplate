@@ -67,6 +67,14 @@ function leftResizer(container: HTMLElement): HTMLElement {
   return resizer;
 }
 
+function agentTarget(container: HTMLElement, id: string): HTMLElement {
+  const target = container.querySelector(`[data-agent-id="${id}"]`);
+  if (!(target instanceof HTMLElement)) {
+    throw new Error(`未找到 Agent 调试目标: ${id}`);
+  }
+  return target;
+}
+
 function sidebarRowForText(container: HTMLElement, text: string): HTMLElement {
   const label = Array.from(container.querySelectorAll(".sb-tree__name")).find(
     (node) => node.textContent === text,
@@ -91,6 +99,42 @@ beforeEach(() => {
 });
 
 describe("AppShell sidebar", () => {
+  it("壳层主路径暴露稳定 Agent 调试标识", async () => {
+    const view = await renderAppShell();
+
+    expect(agentTarget(view.container, "shell")).toHaveClass("shell");
+    expect(agentTarget(view.container, "shell.sidebar.resizer")).toHaveAttribute(
+      "role",
+      "separator",
+    );
+    expect(agentTarget(view.container, "shell.main").tagName).toBe("MAIN");
+    expect(agentTarget(view.container, "titlebar")).toHaveClass("titlebar");
+    expect(agentTarget(view.container, "titlebar.left-sidebar.toggle")).toHaveAttribute(
+      "aria-label",
+      "折叠左侧栏",
+    );
+    expect(agentTarget(view.container, "titlebar.window.minimize")).toHaveAttribute(
+      "aria-label",
+      "最小化",
+    );
+    expect(agentTarget(view.container, "titlebar.window.maximize")).toHaveAttribute(
+      "aria-label",
+      "最大化",
+    );
+    expect(agentTarget(view.container, "titlebar.window.close")).toHaveAttribute(
+      "aria-label",
+      "关闭",
+    );
+    expect(agentTarget(view.container, "sidebar.main")).toHaveClass("secondary-panel");
+    expect(agentTarget(view.container, "sidebar.nav.overview")).toHaveTextContent("概览");
+    expect(agentTarget(view.container, "sidebar.group.example.item.workspace")).toHaveTextContent(
+      APP_SHELL_COPY.workspaceName,
+    );
+    expect(agentTarget(view.container, "sidebar.footer.settings")).toHaveAttribute("href", "/settings");
+    expect(agentTarget(view.container, "sidebar.footer.plugins")).toHaveAttribute("href", "/plugins");
+    expect(agentTarget(view.container, "sidebar.footer.status")).toHaveClass("sb-conn--ok");
+  });
+
   it("主侧边栏行内部包含迁移自 Lilia 的悬停工具按钮", async () => {
     const view = await renderAppShell("/plugins");
     const overviewRow = sidebarRowForText(view.container, "概览");
@@ -184,6 +228,10 @@ describe("AppShell sidebar", () => {
     expect(shell).not.toHaveClass("is-sidebar-collapsed");
     expect(leftToggle).toBeDisabled();
     expect(view.getByRole("navigation", { name: "设置分类" })).toBeInTheDocument();
+    expect(agentTarget(view.container, "settings.sidebar")).toHaveAttribute("aria-label", "设置分类");
+    expect(agentTarget(view.container, "settings.sidebar.back")).toHaveTextContent("返回");
+    expect(agentTarget(view.container, "settings.sidebar.tab.appearance")).toHaveClass("is-active");
+    expect(agentTarget(view.container, "settings.sidebar.tab.about")).toHaveTextContent("关于");
     expect(view.queryByRole("navigation", { name: "主导航" })).not.toBeInTheDocument();
     expect(view.getByRole("button", { name: /外观/ })).toHaveClass("is-active");
     expect(view.router.currentRoute.value.meta.sidebar).toBe("settings");

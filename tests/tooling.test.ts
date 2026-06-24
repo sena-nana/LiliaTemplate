@@ -45,6 +45,7 @@ describe("单应用模板工具链", () => {
     expect(pkg.packageManager).toBe("yarn@4.14.1");
     expect(pkg.scripts).toMatchObject({
       "sync:app-config": "node scripts/sync-app-config.mjs",
+      "agent:debug": "node scripts/agent-debug.mjs",
       "check:package-manager": "node scripts/check-package-manager.mjs",
       predev: "node scripts/prepare-app.mjs",
       dev: "vite",
@@ -134,6 +135,51 @@ describe("单应用模板工具链", () => {
       TAURI_TEMPLATE_DEV_PORT: "34120",
       TAURI_TEMPLATE_DEV_STRICT_PORT: "1",
     });
+  });
+
+  it("Agent 调试入口输出模板边界和可执行验证入口", () => {
+    const run = spawnSync("node", ["scripts/agent-debug.mjs", "--json"], {
+      cwd: resolve("."),
+      encoding: "utf-8",
+    });
+
+    expect(run.status).toBe(0);
+
+    const report = JSON.parse(run.stdout) as {
+      status: string;
+      boundaries: {
+        includes: string[];
+        excludes: string[];
+      };
+      entrypoints: Array<{ id: string; command: string }>;
+      importantFiles: Array<{ path: string; exists: boolean }>;
+      agentTargets: Array<{ id: string; path: string; exists: boolean }>;
+      checks: Array<{ id: string; ok: boolean }>;
+    };
+
+    expect(report.status).toBe("ready");
+    expect(report.boundaries.includes.join("\n")).toContain("Tauri 2 + Vue 3");
+    expect(report.boundaries.excludes.join("\n")).toContain("Lilia Claude/Codex/CC-Switch runtime");
+    expect(report.entrypoints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "unit", command: "yarn test" }),
+        expect.objectContaining({ id: "full", command: "yarn verify" }),
+      ]),
+    );
+    expect(report.importantFiles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: "src-tauri/src/lib.rs", exists: true }),
+        expect.objectContaining({ path: "docs/guide/development.md", exists: true }),
+      ]),
+    );
+    expect(report.agentTargets).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "titlebar.left-sidebar.toggle", exists: true }),
+        expect.objectContaining({ id: "settings.appearance.corner-radius", exists: true }),
+        expect.objectContaining({ id: "sidebar.footer.status", exists: true }),
+      ]),
+    );
+    expect(report.checks.every((check) => check.ok)).toBe(true);
   });
 
   it("GitHub workflow 使用模板路径和通用发布配置", () => {

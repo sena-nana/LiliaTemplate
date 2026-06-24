@@ -19,6 +19,7 @@ const sidebar = useShellSidebar(sidebarLocked);
 
 <template>
   <div
+    data-agent-id="shell"
     class="shell"
     :class="{
       'is-resizing': sidebar.isResizing.value,
@@ -41,6 +42,7 @@ const sidebar = useShellSidebar(sidebarLocked);
     />
     <SecondaryPanel v-else />
     <div
+      data-agent-id="shell.sidebar.resizer"
       class="shell__resizer"
       role="separator"
       aria-orientation="vertical"
@@ -52,7 +54,7 @@ const sidebar = useShellSidebar(sidebarLocked);
       @pointerdown="sidebar.startResize"
       @dblclick="sidebar.resetWidth"
     />
-    <main class="shell__main">
+    <main class="shell__main" data-agent-id="shell.main">
       <RouterView />
     </main>
   </div>

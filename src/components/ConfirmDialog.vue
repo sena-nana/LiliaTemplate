@@ -34,6 +34,7 @@ function onKeydown(event: KeyboardEvent) {
         role="dialog"
         aria-modal="true"
         :aria-label="title"
+        data-agent-id="confirm-dialog"
         tabindex="-1"
         @click.self="emit('cancel')"
         @keydown="onKeydown"
@@ -47,13 +48,20 @@ function onKeydown(event: KeyboardEvent) {
             <p>{{ message }}</p>
           </div>
           <div class="dialog-card__actions">
-            <button type="button" class="ghost" :disabled="busy" @click="emit('cancel')">
+            <button
+              type="button"
+              class="ghost"
+              :disabled="busy"
+              data-agent-id="confirm-dialog.cancel"
+              @click="emit('cancel')"
+            >
               {{ cancelText ?? "取消" }}
             </button>
             <button
               type="button"
               :class="danger ? 'ghost danger' : 'primary'"
               :disabled="busy"
+              data-agent-id="confirm-dialog.confirm"
               @click="emit('confirm')"
             >
               {{ busy ? (busyText ?? "处理中...") : (confirmText ?? "确认") }}

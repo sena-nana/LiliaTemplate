@@ -21,6 +21,7 @@ defineProps<{
       active-class="is-active"
       :title="link.title ?? link.label"
       :aria-label="link.label"
+      :data-agent-id="`sidebar.footer.${link.key}`"
     >
       <component :is="link.icon" :size="14" aria-hidden="true" />
     </RouterLink>
@@ -31,6 +32,7 @@ defineProps<{
       :class="`sb-conn--${status.tone}`"
       :title="status.title"
       :aria-label="status.title"
+      data-agent-id="sidebar.footer.status"
     >
       <component :is="status.icon" :size="12" aria-hidden="true" />
       <span class="sb-conn__label">{{ status.label }}</span>

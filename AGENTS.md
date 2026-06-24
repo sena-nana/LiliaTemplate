@@ -18,6 +18,13 @@
 - 不加冗余注释;需要长期记录的背景、取舍和未决问题写进文档。
 - 不覆盖用户或其他 Agent 的已有改动。
 
+## Agent 调试与迁移边界
+
+- 本模板只迁移 Lilia 对 Agent 友好的工程结构、壳层约定和验证入口;不迁移 Claude / Codex / CC-Switch / agent runner 业务。
+- Agent 接手问题时,优先从仓库根目录运行 `yarn agent:debug` 查看项目边界、关键文件和推荐验证命令;需要机器可读输出时使用 `yarn agent:debug --json`。
+- 涉及 Tauri 命令、窗口状态、构建脚本、路由或壳层布局时,先确认前端、Rust 端和测试的边界,再同步修改。
+- 不把 Lilia 专属路径、协议或验证脚本照搬进模板;例如 `packages/contracts`、任务 timeline、provider 配置和 `yarn verify:agent-debug` 都不是模板默认能力。
+
 ## 样式
 
 - 保持工程工具气质:克制、清晰、可扫描。

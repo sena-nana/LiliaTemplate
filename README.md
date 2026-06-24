@@ -12,6 +12,7 @@
 - 根级 `app.config.json` 统一维护应用名称、产品标题、版本和 Tauri 标识。
 - Yarn 4 单应用包管理与 `verify` 验证脚本。
 - 最小 Tauri Rust 壳和 `ping` invoke 冒烟命令。
+- Agent 友好的项目结构说明、边界清单和 `agent:debug` 诊断入口。
 
 模板不包含：
 
@@ -25,10 +26,12 @@
 yarn install
 yarn dev
 yarn tauri:dev
+yarn agent:debug
 yarn verify
 ```
 
 `yarn verify` 会串行运行前端测试、前端构建和 Tauri Rust 编译检查。
+`yarn agent:debug` 会输出模板边界、关键文件、建议验证命令和当前结构检查结果，便于 Agent 在不加载 Lilia 业务上下文的情况下定位问题。
 
 ## 应用信息
 

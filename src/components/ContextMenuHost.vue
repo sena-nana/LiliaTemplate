@@ -77,6 +77,7 @@ watch(
         ref="menuEl"
         class="ctx-menu"
         role="menu"
+        data-agent-id="context-menu"
         :style="{
           left: `${pos.x}px`,
           top: `${pos.y}px`,
@@ -96,6 +97,7 @@ watch(
           }"
           :disabled="item.disabled"
           role="menuitem"
+          :data-agent-id="`context-menu.item.${item.id ?? index}`"
           @click="selectContextMenuItem(item)"
         >
           <component v-if="item.icon" :is="item.icon" :size="13" aria-hidden="true" />

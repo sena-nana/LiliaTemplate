@@ -44,6 +44,9 @@ describe("基础路由", () => {
     expect(screen.getByRole("button", { name: /外观/ })).toHaveClass("is-active");
     expect(await screen.findByRole("radiogroup", { name: "圆角" })).toBeInTheDocument();
     expect(screen.getByRole("slider", { name: "圆角半径" })).toBeInTheDocument();
+    expect(document.querySelector('[data-agent-id="settings.appearance"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-agent-id="settings.appearance.theme.dark"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-agent-id="settings.appearance.corner-radius"]')).toBeInTheDocument();
     expect(screen.queryByText(/Claude|Codex|CC-Switch|agent/i)).toBeNull();
   });
 

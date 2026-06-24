@@ -3,6 +3,7 @@ import type { SidebarActionItem } from "../../config/appShell";
 
 defineProps<{
   tools: SidebarActionItem[];
+  agentIdBase?: string;
 }>();
 </script>
 
@@ -16,6 +17,7 @@ defineProps<{
       :title="tool.label"
       :aria-label="tool.label"
       :disabled="tool.disabled"
+      :data-agent-id="agentIdBase ? `${agentIdBase}.${tool.key}` : undefined"
     >
       <component :is="tool.icon" :size="13" aria-hidden="true" />
     </button>

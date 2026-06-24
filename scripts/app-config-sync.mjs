@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-const root = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
+const root = resolveProjectRoot(import.meta.url);
 
 export function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -82,5 +82,13 @@ function syncTomlValue(relativePath, key, value, projectRoot) {
 function assertNonEmptyString(value, keyPath) {
   if (typeof value !== "string" || value.trim() === "") {
     throw new Error(`app.config.json requires a non-empty string "${keyPath}".`);
+  }
+}
+
+export function resolveProjectRoot(metaUrl) {
+  try {
+    return dirname(fileURLToPath(new URL("../package.json", metaUrl)));
+  } catch {
+    return process.cwd();
   }
 }

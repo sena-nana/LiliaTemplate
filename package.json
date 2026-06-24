@@ -6,6 +6,7 @@
   "scripts": {
     "sync:app-config": "node scripts/sync-app-config.mjs",
     "version:bump": "node scripts/version-bump.mjs",
+    "agent:debug": "node scripts/agent-debug.mjs",
     "check:package-manager": "node scripts/check-package-manager.mjs",
     "predev": "node scripts/prepare-app.mjs",
     "dev": "vite",

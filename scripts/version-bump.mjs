@@ -1,30 +1,29 @@
 #!/usr/bin/env node
 
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   readJson,
+  resolveProjectRoot,
   syncFromAppConfig,
   validateAppConfig,
   writeIfChanged,
 } from "./app-config-sync.mjs";
 
-const root = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
+const root = resolveProjectRoot(import.meta.url);
 const appConfigPath = resolve(root, "app.config.json");
 const trackedFiles = [
   appConfigPath,
   resolve(root, "package.json"),
-  {
-    path: resolve(root, "src-tauri/tauri.conf.json"),
-  },
+  resolve(root, "src-tauri/tauri.conf.json"),
   resolve(root, "src-tauri/Cargo.toml"),
 ].map((path) => ({
   path,
   read: () => readFileSync(path, "utf8"),
 }));
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isCliEntrypoint(import.meta.url)) {
   try {
     run();
   } catch (error) {
@@ -115,4 +114,12 @@ function greaterThan(a, b) {
 function throwUsage() {
   console.error("Usage: yarn version:bump <patch|minor|major|<x.y.z>>");
   process.exit(1);
+}
+
+function isCliEntrypoint(metaUrl) {
+  try {
+    return process.argv[1] === fileURLToPath(metaUrl);
+  } catch {
+    return false;
+  }
 }

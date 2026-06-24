@@ -11,7 +11,7 @@ defineProps<{
 </script>
 
 <template>
-  <aside class="secondary-panel settings-sidebar" aria-label="设置分类">
+  <aside class="secondary-panel settings-sidebar" aria-label="设置分类" data-agent-id="settings.sidebar">
     <div class="settings-sidebar__head">
       <RouterLink
         :to="returnTo || '/'"
@@ -23,6 +23,7 @@ defineProps<{
           class="settings-sidebar__back"
           aria-label="返回"
           title="返回"
+          data-agent-id="settings.sidebar.back"
           @click="navigate"
         >
           <ArrowLeft :size="15" aria-hidden="true" />
@@ -44,6 +45,7 @@ defineProps<{
           class="settings-sidebar__tab"
           :class="{ 'is-active': activeKey === tab.key }"
           :aria-current="activeKey === tab.key ? 'page' : undefined"
+          :data-agent-id="`settings.sidebar.tab.${tab.key}`"
           @click="navigate"
         >
           <component

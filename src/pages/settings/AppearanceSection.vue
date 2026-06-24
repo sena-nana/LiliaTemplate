@@ -16,7 +16,7 @@ function onCornerRadiusInput(event: Event) {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card" data-agent-id="settings.appearance">
     <h2>外观</h2>
     <div class="settings-row">
       <div class="settings-row__label">
@@ -29,6 +29,7 @@ function onCornerRadiusInput(event: Event) {
           role="radio"
           :aria-checked="theme === 'dark'"
           :class="{ 'is-active': theme === 'dark' }"
+          data-agent-id="settings.appearance.theme.dark"
           @click="setTheme('dark')"
         >
           <Moon :size="14" aria-hidden="true" />
@@ -39,6 +40,7 @@ function onCornerRadiusInput(event: Event) {
           role="radio"
           :aria-checked="theme === 'light'"
           :class="{ 'is-active': theme === 'light' }"
+          data-agent-id="settings.appearance.theme.light"
           @click="setTheme('light')"
         >
           <Sun :size="14" aria-hidden="true" />
@@ -64,6 +66,7 @@ function onCornerRadiusInput(event: Event) {
           role="radio"
           :aria-checked="cornerStyle === 'smooth'"
           :class="{ 'is-active': cornerStyle === 'smooth' }"
+          data-agent-id="settings.appearance.corner.smooth"
           @click="setCornerStyle('smooth')"
         >
           <SquareRoundCorner :size="14" aria-hidden="true" />
@@ -74,6 +77,7 @@ function onCornerRadiusInput(event: Event) {
           role="radio"
           :aria-checked="cornerStyle === 'round'"
           :class="{ 'is-active': cornerStyle === 'round' }"
+          data-agent-id="settings.appearance.corner.round"
           @click="setCornerStyle('round')"
         >
           <Radius :size="14" aria-hidden="true" />
@@ -94,6 +98,7 @@ function onCornerRadiusInput(event: Event) {
           step="1"
           :value="cornerRadius"
           aria-label="圆角半径"
+          data-agent-id="settings.appearance.corner-radius"
           @input="onCornerRadiusInput"
         />
         <output>{{ cornerRadius }}px</output>

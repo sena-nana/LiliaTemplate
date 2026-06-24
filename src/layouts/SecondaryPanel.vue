@@ -14,7 +14,7 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
 </script>
 
 <template>
-  <aside class="secondary-panel">
+  <aside class="secondary-panel" data-agent-id="sidebar.main">
     <div class="sb-section sb-section--actions">
       <button
         v-for="action in SIDEBAR_GLOBAL_ACTIONS"
@@ -24,6 +24,7 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
         :title="action.label"
         :aria-label="action.label"
         :disabled="action.disabled"
+        :data-agent-id="`sidebar.global.${action.key}`"
       >
         <component :is="action.icon" :size="16" aria-hidden="true" />
       </button>
@@ -33,7 +34,14 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
       <div class="sb-section__header">
         <span class="sb-section__title">{{ APP_SHELL_COPY.workspaceSectionTitle }}</span>
         <div class="sb-section__tools">
-          <button type="button" class="sb-icon-btn" title="添加" aria-label="添加" disabled>
+          <button
+            type="button"
+            class="sb-icon-btn"
+            title="添加"
+            aria-label="添加"
+            disabled
+            data-agent-id="sidebar.workspace.add"
+          >
             <Plus :size="14" aria-hidden="true" />
           </button>
         </div>
@@ -46,10 +54,15 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
           class="sb-tree__row"
           active-class="is-active"
           :aria-disabled="item.disabled ? 'true' : undefined"
+          :data-agent-id="`sidebar.nav.${item.key}`"
         >
           <component :is="item.icon" :size="14" aria-hidden="true" />
           <span class="sb-tree__name">{{ item.label }}</span>
-          <SidebarRowTools v-if="item.tools?.length" :tools="item.tools" />
+          <SidebarRowTools
+            v-if="item.tools?.length"
+            :tools="item.tools"
+            :agent-id-base="`sidebar.nav.${item.key}.tool`"
+          />
         </RouterLink>
       </nav>
     </div>
@@ -58,6 +71,7 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
       v-for="group in SIDEBAR_GROUPS"
       :key="group.title"
       class="sb-section"
+      :data-agent-id="`sidebar.group.${group.key}`"
     >
       <div class="sb-section__header">
         <span class="sb-section__title">{{ group.title }}</span>
@@ -70,6 +84,7 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
             :title="tool.label"
             :aria-label="tool.label"
             :disabled="tool.disabled"
+            :data-agent-id="`sidebar.group.${group.key}.tool.${tool.key}`"
           >
             <component :is="tool.icon" :size="14" aria-hidden="true" />
           </button>
@@ -81,10 +96,15 @@ import SidebarRowTools from "../components/sidebar/SidebarRowTools.vue";
           :key="item.label"
           class="sb-tree__row sb-tree__row--project"
           :aria-disabled="item.disabled ? 'true' : undefined"
+          :data-agent-id="`sidebar.group.${group.key}.item.${item.key}`"
         >
           <component :is="item.icon" :size="14" aria-hidden="true" />
           <span class="sb-tree__name">{{ item.label }}</span>
-          <SidebarRowTools v-if="item.tools?.length" :tools="item.tools" />
+          <SidebarRowTools
+            v-if="item.tools?.length"
+            :tools="item.tools"
+            :agent-id-base="`sidebar.group.${group.key}.item.${item.key}.tool`"
+          />
         </div>
         <p v-if="group.emptyText" class="sb-tree__empty">{{ group.emptyText }}</p>
       </div>
