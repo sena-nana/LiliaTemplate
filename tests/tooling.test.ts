@@ -59,6 +59,7 @@ describe("单应用模板工具链", () => {
       tauri: "tauri",
       "tauri:dev": "node scripts/tauri-dev.mjs",
       "tauri:build": "tauri build",
+      "tauri:build:no-bundle": "yarn check:package-manager && yarn tauri build --no-bundle",
       verify: "yarn test && yarn build && cargo check --manifest-path src-tauri/Cargo.toml",
     });
   });
@@ -163,6 +164,10 @@ describe("单应用模板工具链", () => {
     expect(report.entrypoints).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: "unit", command: "yarn test" }),
+        expect.objectContaining({
+          id: "desktop-release-fast",
+          command: "yarn tauri:build:no-bundle",
+        }),
         expect.objectContaining({ id: "full", command: "yarn verify" }),
       ]),
     );
@@ -190,12 +195,18 @@ describe("单应用模板工具链", () => {
 
     expect(ci).toContain("corepack yarn verify");
     expect(ci).toContain("corepack yarn docs:build");
-    expect(ci).toContain("src-tauri/target");
+    expect(ci).toContain("Swatinem/rust-cache@v2");
+    expect(ci).toContain("workspaces: src-tauri -> target");
+    expect(ci).toContain('CARGO_INCREMENTAL: "0"');
+    expect(release).toContain("Swatinem/rust-cache@v2");
+    expect(release).toContain("workspaces: src-tauri -> target");
+    expect(release).toContain('CARGO_INCREMENTAL: "0"');
     expect(release).toContain("projectPath: .");
     expect(release).toContain("Get-Content app.config.json -Raw");
     expect(release).toContain("releaseName: ${{ steps.app_metadata.outputs.product_title }}");
     expect(pages).toContain("docs/.vitepress/dist");
     expect(pages).not.toContain("enablement: true");
+    expect(combined).not.toContain("actions/cache@v4");
     expect(combined).not.toContain("apps/desktop");
     expect(combined).not.toContain("LiliaCode");
   });

@@ -21,6 +21,8 @@ jobs:
     name: Verify template
     runs-on: windows-latest
     timeout-minutes: 30
+    env:
+      CARGO_INCREMENTAL: "0"
 
     steps:
       - name: Checkout
@@ -35,15 +37,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Rust
-        uses: actions/cache@v4
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          workspaces: src-tauri -> target
 
       - name: Enable Corepack
         run: corepack enable

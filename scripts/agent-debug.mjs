@@ -144,6 +144,11 @@ const report = {
     { id: "unit", command: "yarn test", purpose: "run Vitest regression tests" },
     { id: "build", command: "yarn build", purpose: "type-check and build frontend assets" },
     {
+      id: "desktop-release-fast",
+      command: "yarn tauri:build:no-bundle",
+      purpose: "compile the release desktop app without generating installers",
+    },
+    {
       id: "rust",
       command: "cargo check --manifest-path src-tauri/Cargo.toml",
       purpose: "check the Tauri Rust side",
