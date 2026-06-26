@@ -195,18 +195,37 @@ describe("单应用模板工具链", () => {
 
     expect(ci).toContain("corepack yarn verify");
     expect(ci).toContain("corepack yarn docs:build");
+    expect(ci).toContain("mozilla-actions/sccache-action@v0.0.10");
     expect(ci).toContain("Swatinem/rust-cache@v2");
     expect(ci).toContain("workspaces: src-tauri -> target");
     expect(ci).toContain('CARGO_INCREMENTAL: "0"');
+    expect(ci).toContain("RUSTC_WRAPPER: sccache");
+    expect(ci).toContain('SCCACHE_GHA_ENABLED: "true"');
+    expect(ci).toContain("$env:SCCACHE_PATH --show-stats");
+    expect(release).toContain("mozilla-actions/sccache-action@v0.0.10");
     expect(release).toContain("Swatinem/rust-cache@v2");
     expect(release).toContain("workspaces: src-tauri -> target");
     expect(release).toContain('CARGO_INCREMENTAL: "0"');
+    expect(release).toContain("RUSTC_WRAPPER: sccache");
+    expect(release).toContain('SCCACHE_GHA_ENABLED: "true"');
+    expect(release).toContain("$env:SCCACHE_PATH --show-stats");
     expect(release).toContain("projectPath: .");
+    expect(release).toContain(
+      [
+        "      - name: Build and publish Windows bundle",
+        "        uses: tauri-apps/tauri-action@v1",
+        "        env:",
+        "          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}",
+        "        with:",
+        "          projectPath: .",
+      ].join("\n"),
+    );
     expect(release).toContain("Get-Content app.config.json -Raw");
     expect(release).toContain("releaseName: ${{ steps.app_metadata.outputs.product_title }}");
     expect(pages).toContain("docs/.vitepress/dist");
     expect(pages).not.toContain("enablement: true");
     expect(combined).not.toContain("actions/cache@v4");
+    expect(combined).not.toContain("cargo install sccache");
     expect(combined).not.toContain("apps/desktop");
     expect(combined).not.toContain("LiliaCode");
   });

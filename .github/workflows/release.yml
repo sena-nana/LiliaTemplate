@@ -25,6 +25,8 @@ jobs:
     timeout-minutes: 30
     env:
       CARGO_INCREMENTAL: "0"
+      RUSTC_WRAPPER: sccache
+      SCCACHE_GHA_ENABLED: "true"
 
     steps:
       - name: Resolve ref
@@ -61,6 +63,9 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
@@ -76,6 +81,10 @@ jobs:
       - name: Verify template
         run: corepack yarn verify
 
+      - name: Show sccache stats
+        shell: pwsh
+        run: "& $env:SCCACHE_PATH --show-stats"
+
   publish-windows:
     name: Publish Windows bundle
     needs: verify
@@ -83,6 +92,8 @@ jobs:
     timeout-minutes: 45
     env:
       CARGO_INCREMENTAL: "0"
+      RUSTC_WRAPPER: sccache
+      SCCACHE_GHA_ENABLED: "true"
 
     steps:
       - name: Resolve ref
@@ -119,6 +130,9 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
@@ -149,3 +163,7 @@ jobs:
           releaseName: ${{ steps.app_metadata.outputs.product_title }} ${{ steps.release_ref.outputs.tag }}
           releaseDraft: true
           generateReleaseNotes: true
+
+      - name: Show sccache stats
+        shell: pwsh
+        run: "& $env:SCCACHE_PATH --show-stats"
