@@ -60,6 +60,7 @@ describe("单应用模板工具链", () => {
       "tauri:dev": "node scripts/tauri-dev.mjs",
       "tauri:build": "tauri build",
       "tauri:build:no-bundle": "yarn check:package-manager && yarn tauri build --no-bundle",
+      "tauri:install": "node scripts/tauri-install.mjs",
       verify: "yarn test && yarn build && cargo check --manifest-path src-tauri/Cargo.toml",
     });
   });
@@ -136,6 +137,44 @@ describe("单应用模板工具链", () => {
       TAURI_TEMPLATE_DEV_PORT: "34120",
       TAURI_TEMPLATE_DEV_STRICT_PORT: "1",
     });
+  });
+
+  it("Tauri install 脚本默认为本机 CPU 优化 release 打包", () => {
+    const run = spawnSync("node", ["scripts/tauri-install.mjs"], {
+      cwd: resolve("."),
+      env: {
+        ...process.env,
+        TAURI_TEMPLATE_INSTALL_DRY_RUN: "1",
+        RUSTFLAGS: "-C debuginfo=0",
+      },
+      encoding: "utf-8",
+    });
+
+    expect(run.status).toBe(0);
+    const parsed = JSON.parse(run.stdout) as {
+      args: string[];
+      env: Record<string, string>;
+    };
+    expect(parsed.args.join(" ")).toContain("tauri build");
+    expect(parsed.env.RUSTFLAGS).toBe("-C debuginfo=0 -C target-cpu=native");
+  });
+
+  it("Tauri install 脚本不覆盖显式 target-cpu 配置", () => {
+    const run = spawnSync("node", ["scripts/tauri-install.mjs"], {
+      cwd: resolve("."),
+      env: {
+        ...process.env,
+        TAURI_TEMPLATE_INSTALL_DRY_RUN: "1",
+        RUSTFLAGS: "-C target-cpu=x86-64-v3",
+      },
+      encoding: "utf-8",
+    });
+
+    expect(run.status).toBe(0);
+    const parsed = JSON.parse(run.stdout) as {
+      env: Record<string, string>;
+    };
+    expect(parsed.env.RUSTFLAGS).toBe("-C target-cpu=x86-64-v3");
   });
 
   it("Agent 调试入口输出模板边界和可执行验证入口", () => {

@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const bundleDir = join(root, "src-tauri", "target", "release", "bundle");
 const platform = process.platform;
+const nativeCpuFlag = "-C target-cpu=native";
+const dryRun = process.env.TAURI_TEMPLATE_INSTALL_DRY_RUN === "1";
 const priorityExts = {
   win32: [".msi", ".exe"],
   darwin: [".dmg", ".pkg"],
@@ -86,20 +88,40 @@ function install(path) {
   throw new Error(`不支持的系统: ${platform}`);
 }
 
-function yarnBuild() {
+function nativeBuildEnv() {
+  const env = { ...process.env };
+  const rustflags = env.RUSTFLAGS?.trim();
+  env.RUSTFLAGS = rustflags && !rustflags.includes("target-cpu=")
+    ? `${rustflags} ${nativeCpuFlag}`
+    : rustflags || nativeCpuFlag;
+  return env;
+}
+
+function buildCommand() {
   if (platform === "win32") {
-    run(process.env.ComSpec || "cmd.exe", [
-      "/d",
-      "/s",
-      "/c",
-      `yarn.cmd tauri build`,
-    ]);
+    return {
+      command: process.env.ComSpec || "cmd.exe",
+      args: ["/d", "/s", "/c", "yarn.cmd tauri build"],
+    };
+  }
+
+  return { command: "yarn", args: ["tauri", "build"] };
+}
+
+function yarnBuild() {
+  const env = nativeBuildEnv();
+  const { command, args } = buildCommand();
+
+  if (dryRun) {
+    console.log(JSON.stringify({ command, args, env: { RUSTFLAGS: env.RUSTFLAGS } }, null, 2));
     return;
   }
-  run("yarn", ["tauri", "build"]);
+
+  run(command, args, { env });
 }
 
 yarnBuild();
+if (dryRun) process.exit(0);
 const bundle = pickBundleFile();
 console.log(`[tauri:install] 发现安装包: ${bundle}`);
 install(bundle);

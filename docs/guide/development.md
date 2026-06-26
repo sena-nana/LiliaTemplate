@@ -34,7 +34,7 @@ yarn tauri:install
 
 `yarn tauri:dev` 会自动寻找可用本地端口,再把对应 `devUrl` 传给 Tauri。
 `yarn tauri:build:no-bundle` 只验证 release 编译并跳过安装包生成,适合发布前的本地快速检查。
-`yarn tauri:install` 会先打包再打开安装程序并尝试安装。
+`yarn tauri:install` 会先用本机 CPU 优化参数打包,再打开安装程序并尝试安装;该入口面向本机安装验证,不要用它产出的包做通用分发。
 
 Rust 编译缓存可在个人机器启用 `sccache`,但不要写入仓库配置。确认本机已安装后,在 `~/.cargo/config.toml` 配置:
 
