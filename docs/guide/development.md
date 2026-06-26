@@ -27,9 +27,12 @@ yarn install
 yarn dev
 yarn tauri:dev
 yarn agent:debug
+yarn tauri:build
+yarn tauri:install
 ```
 
 `yarn tauri:dev` 会自动寻找可用本地端口,再把对应 `devUrl` 传给 Tauri。
+`yarn tauri:install` 会先打包再打开安装程序并尝试安装。
 
 ## Agent 调试
 

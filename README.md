@@ -26,11 +26,14 @@
 yarn install
 yarn dev
 yarn tauri:dev
+yarn tauri:build
+yarn tauri:install
 yarn agent:debug
 yarn verify
 ```
 
 `yarn verify` 会串行运行前端测试、前端构建和 Tauri Rust 编译检查。
+`yarn tauri:install` 会先执行打包，再自动打开安装程序安装产物（Windows 优先使用 .msi 静默安装）。
 `yarn agent:debug` 会输出模板边界、关键文件、建议验证命令和当前结构检查结果，便于 Agent 在不加载 Lilia 业务上下文的情况下定位问题。
 
 ## 应用信息

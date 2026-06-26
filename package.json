@@ -27,6 +27,7 @@
     "tauri:dev": "node scripts/tauri-dev.mjs",
     "pretauri:build": "node scripts/prepare-app.mjs",
     "tauri:build": "tauri build",
+    "tauri:install": "node scripts/tauri-install.mjs",
     "preverify": "node scripts/prepare-app.mjs",
     "verify": "yarn test && yarn build && cargo check --manifest-path src-tauri/Cargo.toml"
   },
