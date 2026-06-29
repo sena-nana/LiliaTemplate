@@ -3470,6 +3470,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-lilia"
+version = "0.1.0"
+source = "git+https://github.com/sena-nana/LiliaUI?branch=main#750821b22d1a5e0bdfcc0ab6e3eb0f2fd108bc61"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin-store",
+]
+
+[[package]]
 name = "tauri-plugin-opener"
 version = "2.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3611,10 +3622,10 @@ dependencies = [
 name = "tauri_template"
 version = "0.1.0"
 dependencies = [
- "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-lilia",
  "tauri-plugin-opener",
  "tauri-plugin-store",
 ]

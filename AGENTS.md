@@ -13,19 +13,19 @@
 - 任务比较复杂时,先拆解为明确子任务;可并行或边界清晰的部分使用子智能体完成,主 Agent 负责整合、验证和收口。
 - 不做打补丁式修复;遇到问题先定位根因,再在正确边界修正。
 - 优先沿用现有结构和命名,不要顺手做无关重构。
-- 模板仓库只承载应用入口、路由、命令、业务页面和 Tauri Rust 边界;通用 UI、样式、配置、工具和构建流程属于 `C:\Files\workspace\LiliaUI` 的 `@lilia/*` 包。
+- 模板仓库只承载应用入口、路由、命令、业务页面和项目专属 Tauri Rust 边界;通用 UI、样式、配置、工具、构建流程和窗口状态插件属于 `C:\Files\workspace\LiliaUI`。
 - 新增业务页面或应用专属功能时,优先解耦到 `src/features` 下的独立文件/模块,并以异步懒加载方式接入。
-- 需要修改标题栏、桌面壳、设置页、菜单、主题、全局 CSS、默认资源、配置同步、模板检查或构建流程时,先在 LiliaUI 对应包内修改,再更新本模板的 Git workspace 依赖锁定。
+- 需要修改标题栏、桌面壳、设置页、菜单、主题、全局 CSS、默认资源、配置同步、模板检查、构建流程或公共 Tauri 运行时逻辑时,先在 LiliaUI 对应包或 crate 内修改,再更新本模板的依赖锁定。
 - 跨端数据契约先明确接口边界,再同步前端、后端和测试。
 - 不加冗余注释;需要长期记录的背景、取舍和未决问题写进文档。
 - 不覆盖用户或其他 Agent 的已有改动。
 
 ## LiliaUI 依赖边界
 
-- 本模板通过 `@lilia/ui`、`@lilia/config`、`@lilia/tools`、`@lilia/build` 消费 LiliaUI;不要在模板内复制这些包已经提供的实现。
+- 本模板通过 `@lilia/ui`、`@lilia/config`、`@lilia/tools`、`@lilia/build` 和 `tauri-plugin-lilia` 消费 LiliaUI;不要在模板内复制这些依赖已经提供的实现。
 - 禁止直接修改 `node_modules/@lilia/*`;需要改公共能力时到 LiliaUI 仓库修改、验证、提交并推送,再在模板中重新安装或刷新依赖锁。
 - Agent 接手问题时,优先从仓库根目录运行 `yarn agent:debug` 查看项目边界、关键文件和推荐验证命令;需要机器可读输出时使用 `yarn agent:debug --json`。
-- 涉及 Tauri 命令、窗口状态、路由或应用业务页面时,在模板仓库内处理;涉及壳层布局、公共组件、默认资源、配置同步、模板检查或构建封装时,遵循 LiliaUI 源实现。
+- 涉及应用专属 Tauri 命令、路由或业务页面时,在模板仓库内处理;涉及窗口状态、壳层布局、公共组件、默认资源、配置同步、模板检查或构建封装时,遵循 LiliaUI 源实现。
 - 不把 Lilia 专属路径、协议或验证脚本照搬进模板;例如 `packages/contracts`、任务 timeline、provider 配置和 `yarn verify:agent-debug` 都不是模板默认能力。
 
 ## 样式
@@ -39,6 +39,6 @@
 ## 验证
 
 - 功能实现后根据任务风险和影响范围选择验证;可选验证包括定向测试、`yarn test`、`yarn build`、`cargo check --manifest-path src-tauri/Cargo.toml` 或 `yarn verify`。
-- 修改 LiliaUI 公共包后,先在 LiliaUI 运行 `yarn typecheck` 和 `yarn test`;模板刷新依赖后至少运行 `yarn agent:debug --json`、`yarn test` 和受影响的构建检查。
+- 修改 LiliaUI 公共包后,先在 LiliaUI 运行 `yarn typecheck` 和 `yarn test`;修改 `tauri-plugin-lilia` 后运行 `cargo test -p tauri-plugin-lilia`;模板刷新依赖后至少运行 `yarn agent:debug --json`、`yarn test` 和受影响的构建检查。
 - 文档、注释、配置说明等低风险改动可不跑测试;涉及持久化、权限、构建配置或用户关键路径时,优先运行最小必要验证。
 - 若未运行测试、构建或验证,在最终说明里写清楚原因;若验证无法运行,写清楚阻塞原因和剩余风险。

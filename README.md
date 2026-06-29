@@ -1,6 +1,6 @@
 # 桌面应用脚手架
 
-最小 Tauri 2 + Vue 3 + TypeScript 脚手架。通用 UI、配置、工具和构建流程由 `@lilia/*` 包提供，本仓库只保留应用配置、路由、命令、业务页面目录和 Tauri 基础配置。
+最小 Tauri 2 + Vue 3 + TypeScript 脚手架。通用 UI、配置、工具、构建流程和窗口状态插件由 LiliaUI 提供，本仓库只保留应用配置、路由、命令、业务页面目录和项目专属 Tauri 边界。
 
 ## 结构
 
@@ -49,3 +49,5 @@ yarn sync:app-config
   }
 }
 ```
+
+Rust 侧通过 Cargo git dependency 消费 `tauri-plugin-lilia`。
