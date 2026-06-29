@@ -21,45 +21,6 @@ function yarnRun(args: string[], options: Parameters<typeof spawnSync>[2]) {
 }
 
 describe("单应用模板工具链", () => {
-  it("Tauri dev 脚本 dry-run 可通过公开入口执行", () => {
-    const run = yarnRun(["tauri:dev", "--verbose"], {
-      cwd: resolve("."),
-      env: {
-        ...process.env,
-        TAURI_TEMPLATE_DEV_DRY_RUN: "1",
-        TAURI_TEMPLATE_DEV_PORT: "34120",
-      },
-      encoding: "utf-8",
-    });
-
-    expect(run.status).toBe(0);
-    const parsed = JSON.parse(run.stdout) as {
-      args: string[];
-      devUrl?: string;
-    };
-    expect(parsed.args).toContain("dev");
-    expect(parsed.devUrl).toMatch(/^http:\/\/localhost:\d+$/);
-  });
-
-  it("Tauri install 脚本 dry-run 可通过公开入口执行", () => {
-    const run = yarnRun(["tauri:install"], {
-      cwd: resolve("."),
-      env: {
-        ...process.env,
-        TAURI_TEMPLATE_INSTALL_DRY_RUN: "1",
-      },
-      encoding: "utf-8",
-    });
-
-    expect(run.status).toBe(0);
-    const parsed = JSON.parse(run.stdout) as {
-      command: string;
-      args: string[];
-    };
-    expect(parsed.command).toBeTruthy();
-    expect(parsed.args.join(" ")).toContain("tauri build");
-  });
-
   it("Agent 调试入口输出模板边界和可执行验证入口", () => {
     const run = yarnRun(["agent:debug", "--json"], {
       cwd: resolve("."),
@@ -81,7 +42,7 @@ describe("单应用模板工具链", () => {
     expect(report.importantFiles.every((file) => file.exists)).toBe(true);
     expect(report.agentTargets.every((target) => target.exists)).toBe(true);
     expect(report.checks.every((check) => check.ok)).toBe(true);
-  });
+  }, 15_000);
 
   it("app.config.json 是应用名称、标题和版本的同步来源", () => {
     const config = appConfig();

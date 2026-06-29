@@ -57,5 +57,4 @@ describe("基础路由", () => {
     expect(await screen.findByRole("heading", { level: 1, name: APP_SHELL_COPY.homeTitle }))
       .toBeInTheDocument();
   });
-
 });
