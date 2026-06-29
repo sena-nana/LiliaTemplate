@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/vue";
+import { APP_SHELL_COPY, vContextMenu } from "@lilia/ui";
 import { createMemoryHistory } from "vue-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import App from "../src/App.vue";
-import { APP_SHELL_COPY } from "../src/config/appShell";
 import { createTemplateRouter } from "../src/router";
 
 async function renderAt(path: string) {
@@ -12,6 +12,9 @@ async function renderAt(path: string) {
 
   render(App, {
     global: {
+      directives: {
+        contextMenu: vContextMenu,
+      },
       plugins: [router],
     },
   });
@@ -30,7 +33,6 @@ describe("基础路由", () => {
     await renderAt("/");
 
     expect(screen.getAllByRole("link", { name: "设置" })).toHaveLength(1);
-    expect(screen.getByRole("link", { name: "扩展" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: APP_SHELL_COPY.statusTitle }),
     ).toHaveClass("sb-conn--ok");
@@ -62,7 +64,9 @@ describe("基础路由", () => {
     await fireEvent.click(round);
 
     expect(round).toHaveClass("is-active");
-    expect(document.documentElement.dataset.corners).toBe("round");
+    await vi.waitFor(() => {
+      expect(document.documentElement.dataset.corners).toBe("round");
+    });
 
     await fireEvent.click(smooth);
 
@@ -80,7 +84,9 @@ describe("基础路由", () => {
 
     await fireEvent.input(radius, { target: { value: "14" } });
 
-    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("14px");
+    await vi.waitFor(() => {
+      expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("14px");
+    });
     expect(screen.getByText("14px")).toBeInTheDocument();
   });
 
@@ -88,20 +94,14 @@ describe("基础路由", () => {
     await renderAt("/settings?tab=about");
 
     expect(await screen.findByRole("heading", { level: 1, name: "关于" })).toBeInTheDocument();
-    expect(await screen.findByText("Tauri 2 + Vue 3")).toBeInTheDocument();
-  });
-
-  it("扩展页显示模板占位内容", async () => {
-    await renderAt("/plugins");
-
-    expect(await screen.findByRole("heading", { level: 1, name: "扩展" })).toBeInTheDocument();
-    expect(screen.getByText("当前模板不包含 Lilia 的真实插件管理逻辑。")).toBeInTheDocument();
+    expect(await screen.findByText("Tauri Template")).toBeInTheDocument();
   });
 
   it("未知路由回到首页", async () => {
     await renderAt("/missing");
 
-    expect(await screen.findByText(APP_SHELL_COPY.homeDescription)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: APP_SHELL_COPY.homeTitle }))
+      .toBeInTheDocument();
   });
 
   it("未知设置 tab 回落到外观", async () => {

@@ -1,8 +1,8 @@
 import { fireEvent, render, waitFor, within } from "@testing-library/vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { APP_SHELL_COPY, SIDEBAR_CONFIG } from "../src/config/appShell";
-import AppShell from "../src/layouts/AppShell.vue";
+import { APP_SHELL_COPY, LiliaDesktopShell, SIDEBAR_CONFIG, setLiliaAppConfig } from "@lilia/ui";
+import { appConfig } from "../src/app.config";
 
 vi.mock("@tauri-apps/api/window", () => ({
   getCurrentWindow: () => ({
@@ -24,11 +24,6 @@ async function renderAppShell(initialRoute = "/") {
         meta: { sidebar: "main", returnable: true },
       },
       {
-        path: "/plugins",
-        component: { template: "<div>plugins</div>" },
-        meta: { sidebar: "main", returnable: true },
-      },
-      {
         path: "/settings",
         component: { template: "<div>settings</div>" },
         meta: { sidebar: "settings", lockSidebar: true, returnable: false },
@@ -39,7 +34,8 @@ async function renderAppShell(initialRoute = "/") {
   await router.push(initialRoute);
   await router.isReady();
 
-  const view = render(AppShell, {
+  setLiliaAppConfig(appConfig);
+  const view = render(LiliaDesktopShell, {
     global: {
       plugins: [router],
     },
@@ -96,6 +92,7 @@ function hoverToolsIn(row: HTMLElement): HTMLElement {
 
 beforeEach(() => {
   localStorage.clear();
+  setLiliaAppConfig(appConfig);
 });
 
 describe("AppShell sidebar", () => {
@@ -131,12 +128,11 @@ describe("AppShell sidebar", () => {
       APP_SHELL_COPY.workspaceName,
     );
     expect(agentTarget(view.container, "sidebar.footer.settings")).toHaveAttribute("href", "/settings");
-    expect(agentTarget(view.container, "sidebar.footer.plugins")).toHaveAttribute("href", "/plugins");
     expect(agentTarget(view.container, "sidebar.footer.status")).toHaveClass("sb-conn--ok");
   });
 
   it("主侧边栏行内部包含迁移自 Lilia 的悬停工具按钮", async () => {
-    const view = await renderAppShell("/plugins");
+    const view = await renderAppShell("/");
     const overviewRow = sidebarRowForText(view.container, "概览");
     const workspaceRow = sidebarRowForText(view.container, APP_SHELL_COPY.workspaceName);
 
@@ -153,7 +149,7 @@ describe("AppShell sidebar", () => {
     await fireEvent.click(overviewTools);
     await fireEvent.click(workspaceTools);
 
-    expect(view.router.currentRoute.value.fullPath).toBe("/plugins");
+    expect(view.router.currentRoute.value.fullPath).toBe("/");
   });
 
   it("左上角按钮切换左侧栏折叠状态并写回本地存储", async () => {
@@ -251,12 +247,12 @@ describe("AppShell sidebar", () => {
   });
 
   it("设置页返回进入设置前的主窗口路由", async () => {
-    const view = await renderAppShell("/plugins");
+    const view = await renderAppShell("/");
 
     await view.router.push("/settings?tab=about");
     await fireEvent.click(view.getByRole("button", { name: "返回" }));
     await waitFor(() => {
-      expect(view.router.currentRoute.value.fullPath).toBe("/plugins");
+      expect(view.router.currentRoute.value.fullPath).toBe("/");
     });
   });
 });

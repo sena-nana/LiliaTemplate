@@ -14,10 +14,13 @@ const appConfig = readJson("app.config.json");
 
 const importantFiles = [
   ["app.config.json", "single source for app name, product title, version, and identifiers"],
-  ["src/main.ts", "Vue bootstrap and global app installers"],
-  ["src/router.ts", "route table for the template shell"],
-  ["src/layouts/AppShell.vue", "main desktop shell layout"],
-  ["src/components/TitleBar.vue", "custom Tauri titlebar behavior"],
+  ["src/main.ts", "minimal Vue bootstrap that mounts createLiliaApp"],
+  ["src/app.config.ts", "runtime adapter from app config to @lilia/ui shell config"],
+  ["src/app.ts", "createLiliaApp integration boundary"],
+  ["src/routes.ts", "application route table"],
+  ["src/commands.ts", "application command registration boundary"],
+  ["src/features/home/HomePage.vue", "default business feature page"],
+  ["node_modules/@lilia/ui/src/index.ts", "installed public UI package entry"],
   ["src-tauri/src/lib.rs", "Tauri command and plugin registration boundary"],
   ["src-tauri/src/window_state.rs", "window-state persistence boundary"],
   ["tests/tooling.test.ts", "tooling and template-boundary regression tests"],
@@ -29,39 +32,38 @@ const importantFiles = [
 }));
 
 const agentTargetFiles = {
-  "src/layouts/AppShell.vue": [["shell.sidebar.resizer"]],
-  "src/components/TitleBar.vue": [
+  "node_modules/@lilia/ui/src/layouts/AppShell.vue": [["shell.sidebar.resizer"]],
+  "node_modules/@lilia/ui/src/components/TitleBar.vue": [
     ["titlebar.left-sidebar.toggle"],
     ["titlebar.window.minimize"],
     ["titlebar.window.maximize"],
     ["titlebar.window.close"],
   ],
-  "src/layouts/SecondaryPanel.vue": [
+  "node_modules/@lilia/ui/src/layouts/SecondaryPanel.vue": [
     ["sidebar.global.new", "sidebar.global.${action.key}"],
     ["sidebar.global.search", "sidebar.global.${action.key}"],
     ["sidebar.nav.overview", "sidebar.nav.${item.key}"],
     ["sidebar.workspace.add"],
     ["sidebar.group.example.item.workspace", "sidebar.group.${group.key}.item.${item.key}"],
   ],
-  "src/components/sidebar/SidebarFooter.vue": [
+  "node_modules/@lilia/ui/src/components/sidebar/SidebarFooter.vue": [
     ["sidebar.footer.settings", "sidebar.footer.${link.key}"],
-    ["sidebar.footer.plugins", "sidebar.footer.${link.key}"],
     ["sidebar.footer.status"],
   ],
-  "src/layouts/SettingsSidebar.vue": [
+  "node_modules/@lilia/ui/src/layouts/SettingsSidebar.vue": [
     ["settings.sidebar.back"],
     ["settings.sidebar.tab.appearance", "settings.sidebar.tab.${tab.key}"],
     ["settings.sidebar.tab.about", "settings.sidebar.tab.${tab.key}"],
   ],
-  "src/pages/settings/AppearanceSection.vue": [
+  "node_modules/@lilia/ui/src/pages/settings/AppearanceSection.vue": [
     ["settings.appearance.theme.dark"],
     ["settings.appearance.theme.light"],
     ["settings.appearance.corner.smooth"],
     ["settings.appearance.corner.round"],
     ["settings.appearance.corner-radius"],
   ],
-  "src/components/ContextMenuHost.vue": [["context-menu"]],
-  "src/components/ConfirmDialog.vue": [["confirm-dialog.cancel"], ["confirm-dialog.confirm"]],
+  "node_modules/@lilia/ui/src/components/ContextMenuHost.vue": [["context-menu"]],
+  "node_modules/@lilia/ui/src/components/ConfirmDialog.vue": [["confirm-dialog.cancel"], ["confirm-dialog.confirm"]],
 };
 
 const agentTargets = Object.entries(agentTargetFiles).flatMap(([path, targets]) => {
@@ -98,6 +100,11 @@ const checks = [
     detail: "template should expose agent-friendly structure without bundling Lilia agent runtime",
   },
   {
+    id: "lilia-ui-dependency-present",
+    ok: packageJson.dependencies?.["@lilia/ui"] !== undefined,
+    detail: `@lilia/ui=${packageJson.dependencies?.["@lilia/ui"] ?? "missing"}`,
+  },
+  {
     id: "important-files-present",
     ok: importantFiles.every((file) => file.exists),
     detail: `${importantFiles.filter((file) => file.exists).length}/${importantFiles.length} files present`,
@@ -127,8 +134,9 @@ const report = {
   },
   boundaries: {
     includes: [
-      "Tauri 2 + Vue 3 desktop shell",
-      "theme, titlebar, context menu, window-state persistence, and app metadata sync",
+      "thin Tauri 2 + Vue 3 scaffold",
+      "@lilia/ui powered theme, titlebar, context menu, shell, and settings UI",
+      "window-state persistence and app metadata sync",
       "deterministic root scripts that agents can run from the repository root",
     ],
     excludes: [

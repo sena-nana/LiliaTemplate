@@ -6,13 +6,13 @@
   "storageKeyPrefix": "tauri-template",
   "shell": {
     "homeTitle": "Tauri 应用模板",
-    "homeDescription": "从这里开始替换成你的业务页面。",
+    "homeDescription": "应用已准备就绪。",
     "homeActionLabel": "打开项目",
     "workspaceSectionTitle": "工作区",
     "workspaceName": "Template Workspace",
-    "workspaceEmptyText": "替换为你的业务导航。",
+    "workspaceEmptyText": "暂无项目。",
     "statusLabel": "Ready",
     "statusTitle": "模板状态正常。点击进入设置。",
-    "settingsDescription": "这里只保留模板级偏好，业务配置由具体项目添加。"
+    "settingsDescription": "偏好设置会保存到本地。"
   }
 }

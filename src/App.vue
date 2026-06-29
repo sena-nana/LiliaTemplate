@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { RouterView } from "vue-router";
-
-const ContextMenuHost = defineAsyncComponent(() => import("./components/ContextMenuHost.vue"));
+import { LiliaAppRoot } from "@lilia/ui";
 </script>
 
 <template>
-  <RouterView />
-  <ContextMenuHost />
+  <LiliaAppRoot />
 </template>

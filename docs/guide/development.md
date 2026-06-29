@@ -5,12 +5,12 @@
 ```text
 Tauri-Template/
 ├── src/                 # Vue 3 前端
-│   ├── layouts/         # AppShell / SecondaryPanel / SettingsSidebar
-│   ├── components/      # TitleBar / ViewTabs / SidebarFooter 等
-│   ├── pages/           # Home / Settings / Plugins
-│   ├── composables/     # useTheme / useResizablePane 等
-│   ├── router.ts
-│   └── styles.css
+│   ├── app.config.ts    # 将根级 app.config.json 适配为 @lilia/ui 配置
+│   ├── app.ts           # createLiliaApp 接入
+│   ├── commands.ts      # app 命令注册
+│   ├── features/        # 业务页面
+│   ├── routes.ts        # app 路由
+│   └── main.ts
 ├── src-tauri/           # Tauri 2 Rust 端
 ├── tests/               # Vitest + Testing Library
 └── scripts/             # 本地开发脚本, 包含 agent-debug.mjs 诊断入口

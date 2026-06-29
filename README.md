@@ -1,18 +1,25 @@
 # 桌面应用模板
 
-一个从 Lilia 当前桌面端外壳提取出的最小 Tauri 2 + Vue 3 + TypeScript 应用模板。
+一个最轻 Tauri 2 + Vue 3 + TypeScript 应用脚手架。通用 UI、样式、桌面 Shell、菜单、主题和设置页能力由 `@lilia/ui` 提供，模板只保留应用入口、配置、路由、业务示例目录和 Tauri 基础配置。
 
 模板保留：
 
-- Lilia 风格的自绘标题栏、可拖拽侧栏、紧凑工作台 UI。
+- `src/main.ts`、`src/app.config.ts`、`src/routes.ts`、`src/commands.ts` 最小前端接入。
+- `src/features/` 业务页面目录约定。
+- `@lilia/ui` 依赖接入和公共样式 import。
 - 主窗口位置、尺寸与最大化状态恢复，避免启动时先闪默认窗口再跳转。
-- 暗色 / 浅色主题切换与本地持久化。
-- 组件声明式右键菜单、程序化打开菜单、危险项二次确认，并全局屏蔽浏览器原生右键菜单。
-- 通用确认弹层和模板版 `AGENTS.md` 开发规范。
 - 根级 `app.config.json` 统一维护应用名称、产品标题、版本和 Tauri 标识。
 - Yarn 4 单应用包管理与 `verify` 验证脚本。
 - 最小 Tauri Rust 壳和 `ping` invoke 冒烟命令。
 - Agent 友好的项目结构说明、边界清单和 `agent:debug` 诊断入口。
+
+公共包提供：
+
+- Lilia 风格的自绘标题栏、可拖拽侧栏、紧凑工作台 UI。
+- 暗色 / 浅色主题切换、圆角设置与本地持久化。
+- 组件声明式右键菜单、程序化打开菜单、危险项二次确认。
+- Dropdown、ViewTabs、ConfirmDialog 等基础组件。
+- `createLiliaApp`、命令注册表、Shell 配置适配和全局挂载点。
 
 模板不包含：
 
@@ -39,6 +46,27 @@ yarn verify
 ## 应用信息
 
 修改根目录的 `app.config.json` 后运行 `yarn sync:app-config`，会同步更新前端展示、`package.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml`。
+
+运行时 Shell 配置位于 `src/app.config.ts`，会把根级 `app.config.json` 转成 `@lilia/ui` 的配置对象。业务页面从 `src/routes.ts` 接入，命令从 `src/commands.ts` 注册。
+
+## LiliaUI 依赖
+
+模板通过 Git 依赖引用公共 UI 包：
+
+```json
+{
+  "dependencies": {
+    "@lilia/ui": "github:sena-nana/LiliaUI#main"
+  }
+}
+```
+
+需要同步公共 UI / 样式 / Shell 能力时，更新依赖并重新安装：
+
+```bash
+yarn up @lilia/ui
+yarn install
+```
 
 ## 版本提升（本地）
 

@@ -1,15 +1,17 @@
 import { defineComponent, nextTick, ref } from "vue";
 import { fireEvent, render } from "@testing-library/vue";
 import { beforeEach, describe, expect, it } from "vitest";
-import { SIDEBAR_CONFIG } from "../src/config/appShell";
+import { SIDEBAR_CONFIG, setLiliaAppConfig } from "@lilia/ui";
 import {
   usePersistentBoolean,
   usePersistentNumber,
-} from "../src/composables/usePersistentState";
-import { useShellSidebar } from "../src/composables/useShellSidebar";
+  useShellSidebar,
+} from "@lilia/ui";
+import { appConfig } from "../src/app.config";
 
 beforeEach(() => {
   localStorage.clear();
+  setLiliaAppConfig(appConfig);
 });
 
 describe("persistent state composables", () => {
