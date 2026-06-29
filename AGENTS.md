@@ -1,44 +1,32 @@
-# Agent 开发规范
+# Agent 入口规范
 
-## Git 提交
+<!-- CODEGRAPH_START -->
+## CodeGraph
 
-- 提交标题用中文短句概括结果。
-- 提交正文按列表简短写具体改动;无必要不写正文。
-- 提交前按改动范围选择是否检查 diff;涉及多人协作、合并冲突或跨模块改动时,确认 diff 只包含本次改动。
-- 提交前按任务复杂度选择是否做代码自检;涉及逻辑调整、重构或公共模块时,检查是否存在可删除的冗余逻辑、重复分支、无效辅助函数或代码复述型注释。
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
 
-## 代码
+- MCP tools (when available): `codegraph_explore` answers most code questions in one call, returning relevant source plus call paths. `codegraph_node` returns one symbol's source and callers, or reads a whole file with line numbers. If the tools are deferred, load them by name via tool search.
+- Shell fallback: `codegraph explore "<symbol names or question>"` and `codegraph node <symbol-or-file>` print the same output.
 
-- 先读相关模块、数据契约和现有测试,再动手改代码。
-- 任务比较复杂时,先拆解为明确子任务;可并行或边界清晰的部分使用子智能体完成,主 Agent 负责整合、验证和收口。
-- 不做打补丁式修复;遇到问题先定位根因,再在正确边界修正。
-- 优先沿用现有结构和命名,不要顺手做无关重构。
-- 模板仓库只承载应用入口、路由、命令、业务页面和项目专属 Tauri Rust 边界;通用 UI、样式、配置、工具、构建流程和窗口状态插件属于 `C:\Files\workspace\LiliaUI`。
-- 新增业务页面或应用专属功能时,优先解耦到 `src/features` 下的独立文件/模块,并以异步懒加载方式接入。
-- 需要修改标题栏、桌面壳、设置页、菜单、主题、全局 CSS、默认资源、配置同步、模板检查、构建流程或公共 Tauri 运行时逻辑时,先在 LiliaUI 对应包或 crate 内修改,再更新本模板的依赖锁定。
-- 跨端数据契约先明确接口边界,再同步前端、后端和测试。
-- 不加冗余注释;需要长期记录的背景、取舍和未决问题写进文档。
+If there is no `.codegraph/` directory, skip CodeGraph entirely.
+<!-- CODEGRAPH_END -->
+
+## 项目级 Skills
+
+本仓库通过 `.agents/skills` 为基于模板创建的最终应用提供 Agent 能力。处理对应任务时优先使用这些 Skill,不要把细则继续堆进 `AGENTS.md`。
+
+- `$lilia-app-design`: 设计、交互、视觉层级、页面样式、侧边栏、卡片、浮层和状态评审。
+- `$lilia-app-coding`: 功能实现、问题修复、重构、路由、命令、业务页面和应用专属 Tauri 代码。
+- `$lilia-app-boundary`: 判断改动属于最终应用还是 LiliaUI 公共能力。
+- `$lilia-app-validation`: 选择功能验证、测试、构建、Tauri 检查和结果汇报方式。
+- `$lilia-app-git`: 暂存、提交、推送、合并和依赖更新收口。
+
+## 硬约束
+
+- 灵活运用子代理任务分派,并行化执行边界清晰的任务;主 Agent 负责整合、验证和收口。
+- 修复问题时先定位根本原因,禁止打补丁式修复。
+- 实现前结合上下文判断代码和设计是否有足够价值,优先选择更简洁优雅的方案。
+- 禁止在 UI 显示技术说明内容。
+- 禁止让 UI 看起来像有功能但实际未接入;所有可见操作必须落地功能或表达真实不可用状态。
+- 禁止添加低价值测试和硬匹配日志或字符串的测试;所有测试必须以功能为准,无功能变动则不添加测试。
 - 不覆盖用户或其他 Agent 的已有改动。
-
-## LiliaUI 依赖边界
-
-- 本模板通过 `@lilia/ui`、`@lilia/config`、`@lilia/tools`、`@lilia/build` 和 `tauri-plugin-lilia` 消费 LiliaUI;不要在模板内复制这些依赖已经提供的实现。
-- 禁止直接修改 `node_modules/@lilia/*`;需要改公共能力时到 LiliaUI 仓库修改、验证、提交并推送,再在模板中重新安装或刷新依赖锁。
-- Agent 接手问题时,优先从仓库根目录运行 `yarn agent:debug` 查看项目边界、关键文件和推荐验证命令;需要机器可读输出时使用 `yarn agent:debug --json`。
-- 涉及应用专属 Tauri 命令、路由或业务页面时,在模板仓库内处理;涉及窗口状态、壳层布局、公共组件、默认资源、配置同步、模板检查或构建封装时,遵循 LiliaUI 源实现。
-- 不把 Lilia 专属路径、协议或验证脚本照搬进模板;例如 `packages/contracts`、任务 timeline、provider 配置和 `yarn verify:agent-debug` 都不是模板默认能力。
-
-## 样式
-
-- 保持工程工具气质:克制、清晰、可扫描。
-- 视觉分级明确:主内容 > 当前状态 > 过程信息 / 辅助操作。
-- 模板内不新增公共 CSS 体系;公共令牌、壳层样式、组件语言和默认资源以 LiliaUI 的 `@lilia/ui` 为准。
-- 业务页面优先使用 `@lilia/ui/styles.css` 提供的变量和页面类;确需应用专属样式时限制在业务组件 scoped style 内。
-- 涉及 UI 设计或交互模式调整时,先确认目标交互和所属仓库;公共交互改 LiliaUI,应用专属交互改模板。
-
-## 验证
-
-- 功能实现后根据任务风险和影响范围选择验证;可选验证包括定向测试、`yarn test`、`yarn build`、`cargo check --manifest-path src-tauri/Cargo.toml` 或 `yarn verify`。
-- 修改 LiliaUI 公共包后,先在 LiliaUI 运行 `yarn typecheck` 和 `yarn test`;修改 `tauri-plugin-lilia` 后运行 `cargo test -p tauri-plugin-lilia`;模板刷新依赖后至少运行 `yarn agent:debug --json`、`yarn test` 和受影响的构建检查。
-- 文档、注释、配置说明等低风险改动可不跑测试;涉及持久化、权限、构建配置或用户关键路径时,优先运行最小必要验证。
-- 若未运行测试、构建或验证,在最终说明里写清楚原因;若验证无法运行,写清楚阻塞原因和剩余风险。
