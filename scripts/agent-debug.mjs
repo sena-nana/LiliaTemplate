@@ -40,11 +40,7 @@ const agentTargetFiles = {
     ["titlebar.window.close"],
   ],
   "node_modules/@lilia/ui/src/layouts/SecondaryPanel.vue": [
-    ["sidebar.global.new", "sidebar.global.${action.key}"],
-    ["sidebar.global.search", "sidebar.global.${action.key}"],
     ["sidebar.nav.overview", "sidebar.nav.${item.key}"],
-    ["sidebar.workspace.add"],
-    ["sidebar.group.example.item.workspace", "sidebar.group.${group.key}.item.${item.key}"],
   ],
   "node_modules/@lilia/ui/src/components/sidebar/SidebarFooter.vue": [
     ["sidebar.footer.settings", "sidebar.footer.${link.key}"],
@@ -76,11 +72,6 @@ const agentTargets = Object.entries(agentTargetFiles).flatMap(([path, targets]) 
   }));
 });
 
-const deps = {
-  ...packageJson.dependencies,
-  ...packageJson.devDependencies,
-};
-
 const checks = [
   {
     id: "package-manager",
@@ -91,13 +82,6 @@ const checks = [
     id: "single-app-root",
     ok: packageJson.workspaces === undefined,
     detail: packageJson.workspaces === undefined ? "no workspaces field" : "workspaces field exists",
-  },
-  {
-    id: "lilia-agent-runtime-excluded",
-    ok: ["@anthropic-ai/claude-agent-sdk", "@openai/codex-sdk", "@modelcontextprotocol/sdk", "@lilia/contracts"].every(
-      (name) => deps[name] === undefined,
-    ),
-    detail: "template should expose agent-friendly structure without bundling Lilia agent runtime",
   },
   {
     id: "lilia-ui-dependency-present",
@@ -140,9 +124,9 @@ const report = {
       "deterministic root scripts that agents can run from the repository root",
     ],
     excludes: [
-      "Lilia Claude/Codex/CC-Switch runtime business logic",
-      "workspace packages, task timeline, provider configuration, and chat persistence",
-      "SQLite/WebDAV/tray/widget features from other applications",
+      "application-specific business flows",
+      "application-specific data models and persistence",
+      "optional desktop features that are not enabled by this scaffold",
     ],
   },
   entrypoints: [

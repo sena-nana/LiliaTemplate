@@ -1,7 +1,7 @@
-import { fireEvent, render, waitFor, within } from "@testing-library/vue";
+import { fireEvent, render, waitFor } from "@testing-library/vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { APP_SHELL_COPY, LiliaDesktopShell, SIDEBAR_CONFIG, setLiliaAppConfig } from "@lilia/ui";
+import { LiliaDesktopShell, SIDEBAR_CONFIG, setLiliaAppConfig } from "@lilia/ui";
 import { appConfig } from "../src/app.config";
 
 vi.mock("@tauri-apps/api/window", () => ({
@@ -82,14 +82,6 @@ function sidebarRowForText(container: HTMLElement, text: string): HTMLElement {
   return row;
 }
 
-function hoverToolsIn(row: HTMLElement): HTMLElement {
-  const tools = row.querySelector(".sb-tree__hover-tools");
-  if (!(tools instanceof HTMLElement)) {
-    throw new Error("未找到行内工具按钮容器");
-  }
-  return tools;
-}
-
 beforeEach(() => {
   localStorage.clear();
   setLiliaAppConfig(appConfig);
@@ -123,31 +115,19 @@ describe("AppShell sidebar", () => {
       "关闭",
     );
     expect(agentTarget(view.container, "sidebar.main")).toHaveClass("secondary-panel");
-    expect(agentTarget(view.container, "sidebar.nav.overview")).toHaveTextContent("概览");
-    expect(agentTarget(view.container, "sidebar.group.example.item.workspace")).toHaveTextContent(
-      APP_SHELL_COPY.workspaceName,
-    );
+    expect(agentTarget(view.container, "sidebar.nav.overview")).toHaveTextContent("首页");
     expect(agentTarget(view.container, "sidebar.footer.settings")).toHaveAttribute("href", "/settings");
     expect(agentTarget(view.container, "sidebar.footer.status")).toHaveClass("sb-conn--ok");
   });
 
-  it("主侧边栏行内部包含迁移自 Lilia 的悬停工具按钮", async () => {
+  it("主侧边栏不渲染未接入的占位工具按钮", async () => {
     const view = await renderAppShell("/");
-    const overviewRow = sidebarRowForText(view.container, "概览");
-    const workspaceRow = sidebarRowForText(view.container, APP_SHELL_COPY.workspaceName);
 
-    const overviewTools = hoverToolsIn(overviewRow);
-    const workspaceTools = hoverToolsIn(workspaceRow);
-    const overviewNew = within(overviewTools).getByRole("button", { name: "新建" });
-    const workspaceMore = within(workspaceTools).getByRole("button", { name: "更多" });
-
-    expect(overviewTools.parentElement).toBe(overviewRow);
-    expect(workspaceTools.parentElement).toBe(workspaceRow);
-    expect(overviewNew).toBeDisabled();
-    expect(workspaceMore).toBeDisabled();
-
-    await fireEvent.click(overviewTools);
-    await fireEvent.click(workspaceTools);
+    expect(sidebarRowForText(view.container, "首页")).toBeInTheDocument();
+    expect(view.queryByRole("button", { name: "新建" })).not.toBeInTheDocument();
+    expect(view.queryByRole("button", { name: "搜索" })).not.toBeInTheDocument();
+    expect(view.queryByRole("button", { name: "添加" })).not.toBeInTheDocument();
+    expect(view.queryByRole("button", { name: "更多" })).not.toBeInTheDocument();
 
     expect(view.router.currentRoute.value.fullPath).toBe("/");
   });

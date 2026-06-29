@@ -45,10 +45,7 @@ export function validateAppConfig(config) {
   const shellRequired = [
     "homeTitle",
     "homeDescription",
-    "homeActionLabel",
     "workspaceSectionTitle",
-    "workspaceName",
-    "workspaceEmptyText",
     "statusLabel",
     "statusTitle",
     "settingsDescription",

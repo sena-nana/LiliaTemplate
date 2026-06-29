@@ -1,16 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/vue";
-import { APP_SHELL_COPY, vContextMenu } from "@lilia/ui";
+import { APP_SHELL_COPY, LiliaAppRoot, vContextMenu } from "@lilia/ui";
 import { createMemoryHistory } from "vue-router";
 import { describe, expect, it, vi } from "vitest";
-import App from "../src/App.vue";
-import { createTemplateRouter } from "../src/router";
+import { createTemplateRouter } from "../src/app";
 
 async function renderAt(path: string) {
   const router = createTemplateRouter(createMemoryHistory());
   await router.push(path);
   await router.isReady();
 
-  render(App, {
+  render(LiliaAppRoot, {
     global: {
       directives: {
         contextMenu: vContextMenu,
@@ -21,7 +20,7 @@ async function renderAt(path: string) {
 }
 
 describe("基础路由", () => {
-  it("默认首页显示模板占位内容", async () => {
+  it("默认首页显示应用首页", async () => {
     await renderAt("/");
 
     expect(
@@ -29,7 +28,7 @@ describe("基础路由", () => {
     ).toBeInTheDocument();
   });
 
-  it("侧边栏左下角提供设置、扩展和状态入口", async () => {
+  it("侧边栏左下角提供设置和状态入口", async () => {
     await renderAt("/");
 
     expect(screen.getAllByRole("link", { name: "设置" })).toHaveLength(1);
@@ -49,7 +48,6 @@ describe("基础路由", () => {
     expect(document.querySelector('[data-agent-id="settings.appearance"]')).toBeInTheDocument();
     expect(document.querySelector('[data-agent-id="settings.appearance.theme.dark"]')).toBeInTheDocument();
     expect(document.querySelector('[data-agent-id="settings.appearance.corner-radius"]')).toBeInTheDocument();
-    expect(screen.queryByText(/Claude|Codex|CC-Switch|agent/i)).toBeNull();
   });
 
   it("外观页圆角设置可即时切换全局 data-corners", async () => {

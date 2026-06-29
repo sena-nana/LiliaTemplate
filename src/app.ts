@@ -1,4 +1,4 @@
-import { createLiliaApp, LiliaDesktopShell } from "@lilia/ui";
+import { createLiliaApp, createLiliaRouter, LiliaDesktopShell, setLiliaAppConfig } from "@lilia/ui";
 import type { RouterHistory } from "vue-router";
 import { appConfig } from "./app.config";
 import { commands } from "./commands";
@@ -12,4 +12,9 @@ export function createTemplateApp(history?: RouterHistory) {
     shell: LiliaDesktopShell,
     history,
   });
+}
+
+export function createTemplateRouter(history?: RouterHistory) {
+  setLiliaAppConfig(appConfig);
+  return createLiliaRouter(routes, LiliaDesktopShell, history);
 }
