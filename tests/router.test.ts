@@ -75,8 +75,8 @@ describe("基础路由", () => {
 
     const radius = await screen.findByRole("slider", { name: "圆角半径" });
 
-    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("8px");
-    expect(screen.getByText("8px")).toBeInTheDocument();
+    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("16px");
+    expect(screen.getByText("16px")).toBeInTheDocument();
 
     await fireEvent.input(radius, { target: { value: "14" } });
 

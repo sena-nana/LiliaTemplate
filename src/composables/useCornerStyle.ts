@@ -8,7 +8,7 @@ const RADIUS_STORAGE_KEY = `${APP_METADATA.storageKeyPrefix}.cornerRadius`;
 const DEFAULT_CORNER_STYLE: CornerStyle = "smooth";
 export const CORNER_RADIUS_MIN = 0;
 export const CORNER_RADIUS_MAX = 20;
-export const DEFAULT_CORNER_RADIUS = 8;
+export const DEFAULT_CORNER_RADIUS = 16;
 
 function loadInitial(): CornerStyle {
   try {
@@ -36,11 +36,12 @@ function loadInitialRadius(): number {
 }
 
 function applyCornerPreferences(style: CornerStyle, radius: number): void {
+  const clampedRadius = clampRadius(radius);
   document.documentElement.dataset.corners = style;
-  document.documentElement.style.setProperty("--app-corner-radius", `${clampRadius(radius)}px`);
+  document.documentElement.style.setProperty("--app-corner-radius", `${clampedRadius}px`);
   try {
     localStorage.setItem(STORAGE_KEY, style);
-    localStorage.setItem(RADIUS_STORAGE_KEY, String(clampRadius(radius)));
+    localStorage.setItem(RADIUS_STORAGE_KEY, String(clampedRadius));
   } catch {
     // ignore
   }

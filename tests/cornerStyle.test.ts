@@ -5,18 +5,18 @@ const cornerStorageKey = `${appConfig.storageKeyPrefix}.corners`;
 const cornerRadiusStorageKey = `${appConfig.storageKeyPrefix}.cornerRadius`;
 
 describe("useCornerStyle", () => {
-  it("默认启用平滑圆角和 8px 半径并写入 html 与 localStorage", async () => {
+  it("默认启用平滑圆角和 16px 半径并写入 html 与 localStorage", async () => {
     vi.resetModules();
 
     const { useCornerStyle } = await import("../src/composables/useCornerStyle");
     const { cornerRadius, cornerStyle } = useCornerStyle();
 
     expect(cornerStyle.value).toBe("smooth");
-    expect(cornerRadius.value).toBe(8);
+    expect(cornerRadius.value).toBe(16);
     expect(document.documentElement.dataset.corners).toBe("smooth");
-    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("8px");
+    expect(document.documentElement.style.getPropertyValue("--app-corner-radius")).toBe("16px");
     expect(localStorage.getItem(cornerStorageKey)).toBe("smooth");
-    expect(localStorage.getItem(cornerRadiusStorageKey)).toBe("8");
+    expect(localStorage.getItem(cornerRadiusStorageKey)).toBe("16");
   });
 
   it("从 localStorage 恢复普通圆角和半径并写入 html", async () => {

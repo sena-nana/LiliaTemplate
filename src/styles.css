@@ -68,7 +68,7 @@
   --z-dialog: 1800;
   --z-scrollbar-overlay: 2147483647;
   --app-corner-shape: squircle;
-  --app-corner-radius: 8px;
+  --app-corner-radius: 16px;
   --radius-xs: calc(var(--app-corner-radius) * 0.5);
   --radius-sm: calc(var(--app-corner-radius) * 0.75);
   --radius-md: var(--app-corner-radius);

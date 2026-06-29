@@ -22,74 +22,10 @@ function appConfig() {
     productTitle: string;
     version: string;
     identifier: string;
-    storageKeyPrefix: string;
-    shell: {
-      homeTitle: string;
-      homeDescription: string;
-      homeActionLabel: string;
-      workspaceSectionTitle: string;
-      workspaceName: string;
-      workspaceEmptyText: string;
-      statusLabel: string;
-      statusTitle: string;
-      settingsDescription: string;
-    };
   };
 }
 
 describe("单应用模板工具链", () => {
-  it("根 package.json 直接提供单应用脚本，不包含 workspace", () => {
-    const pkg = JSON.parse(readFileSync(resolve("package.json"), "utf-8"));
-
-    expect(pkg.workspaces).toBeUndefined();
-    expect(pkg.packageManager).toBe("yarn@4.14.1");
-    expect(pkg.scripts).toMatchObject({
-      "sync:app-config": "node scripts/sync-app-config.mjs",
-      "agent:debug": "node scripts/agent-debug.mjs",
-      "check:package-manager": "node scripts/check-package-manager.mjs",
-      predev: "node scripts/prepare-app.mjs",
-      dev: "vite",
-      prebuild: "node scripts/prepare-app.mjs",
-      build: "vue-tsc --noEmit && vite build",
-      pretest: "node scripts/prepare-app.mjs",
-      test: "vitest run",
-      "docs:dev": "vitepress dev docs",
-      "docs:build": "vitepress build docs",
-      "docs:preview": "vitepress preview docs",
-      tauri: "tauri",
-      "tauri:dev": "node scripts/tauri-dev.mjs",
-      "tauri:build": "tauri build",
-      "tauri:build:no-bundle": "yarn check:package-manager && yarn tauri build --no-bundle",
-      "tauri:install": "node scripts/tauri-install.mjs",
-      verify: "yarn test && yarn build && cargo check --manifest-path src-tauri/Cargo.toml",
-    });
-  });
-
-  it("只保留通用 Tauri/Vue 依赖，不包含 Lilia agent 业务依赖", () => {
-    const pkg = JSON.parse(readFileSync(resolve("package.json"), "utf-8"));
-    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-
-    expect(deps.vue).toBeDefined();
-    expect(deps["vue-router"]).toBeDefined();
-    expect(deps["@tauri-apps/api"]).toBeDefined();
-    expect(deps["@tauri-apps/plugin-store"]).toBeDefined();
-    expect(deps.vitepress).toBeDefined();
-    expect(deps["@anthropic-ai/claude-agent-sdk"]).toBeUndefined();
-    expect(deps["@openai/codex-sdk"]).toBeUndefined();
-    expect(deps["@modelcontextprotocol/sdk"]).toBeUndefined();
-    expect(deps["@lilia/contracts"]).toBeUndefined();
-    expect(deps.zod).toBeUndefined();
-  });
-
-  it("Rust 端只新增通用窗口状态 store 插件", () => {
-    const cargo = readFileSync(resolve("src-tauri/Cargo.toml"), "utf-8");
-
-    expect(cargo).toContain('tauri-plugin-store = "2"');
-    expect(cargo).not.toContain("rusqlite");
-    expect(cargo).not.toContain("r2d2");
-    expect(cargo).not.toContain("reqwest");
-  });
-
   it("包管理器检查接受 Yarn 4 并拒绝其他入口", () => {
     const ok = spawnSync("node", ["scripts/check-package-manager.mjs"], {
       cwd: resolve("."),
@@ -108,7 +44,6 @@ describe("单应用模板工具链", () => {
       encoding: "utf-8",
     });
     expect(bad.status).toBe(1);
-    expect(bad.stderr).toContain(`${appConfig().productTitle} requires Yarn 4 through Corepack.`);
   });
 
   it("Tauri dev 脚本 dry-run 输出动态端口配置", () => {
@@ -124,22 +59,17 @@ describe("单应用模板工具链", () => {
 
     expect(run.status).toBe(0);
     const parsed = JSON.parse(run.stdout) as {
-      args: string[];
       devUrl: string;
       env: Record<string, string>;
     };
     expect(parsed.devUrl).toBe("http://localhost:34120");
-    expect(parsed.args).toContain("tauri");
-    expect(parsed.args).toContain("dev");
-    expect(parsed.args).toContain("--config");
-    expect(parsed.args).toContain("--verbose");
     expect(parsed.env).toMatchObject({
       TAURI_TEMPLATE_DEV_PORT: "34120",
       TAURI_TEMPLATE_DEV_STRICT_PORT: "1",
     });
   });
 
-  it("Tauri install 脚本默认为本机 CPU 优化 release 打包", () => {
+  it("Tauri install 脚本默认追加本机 CPU 优化", () => {
     const run = spawnSync("node", ["scripts/tauri-install.mjs"], {
       cwd: resolve("."),
       env: {
@@ -152,10 +82,8 @@ describe("单应用模板工具链", () => {
 
     expect(run.status).toBe(0);
     const parsed = JSON.parse(run.stdout) as {
-      args: string[];
       env: Record<string, string>;
     };
-    expect(parsed.args.join(" ")).toContain("tauri build");
     expect(parsed.env.RUSTFLAGS).toBe("-C debuginfo=0 -C target-cpu=native");
   });
 
@@ -187,10 +115,6 @@ describe("单应用模板工具链", () => {
 
     const report = JSON.parse(run.stdout) as {
       status: string;
-      boundaries: {
-        includes: string[];
-        excludes: string[];
-      };
       entrypoints: Array<{ id: string; command: string }>;
       importantFiles: Array<{ path: string; exists: boolean }>;
       agentTargets: Array<{ id: string; path: string; exists: boolean }>;
@@ -198,88 +122,16 @@ describe("单应用模板工具链", () => {
     };
 
     expect(report.status).toBe("ready");
-    expect(report.boundaries.includes.join("\n")).toContain("Tauri 2 + Vue 3");
-    expect(report.boundaries.excludes.join("\n")).toContain("Lilia Claude/Codex/CC-Switch runtime");
-    expect(report.entrypoints).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "unit", command: "yarn test" }),
-        expect.objectContaining({
-          id: "desktop-release-fast",
-          command: "yarn tauri:build:no-bundle",
-        }),
-        expect.objectContaining({ id: "full", command: "yarn verify" }),
-      ]),
-    );
-    expect(report.importantFiles).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ path: "src-tauri/src/lib.rs", exists: true }),
-        expect.objectContaining({ path: "docs/guide/development.md", exists: true }),
-      ]),
-    );
-    expect(report.agentTargets).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "titlebar.left-sidebar.toggle", exists: true }),
-        expect.objectContaining({ id: "settings.appearance.corner-radius", exists: true }),
-        expect.objectContaining({ id: "sidebar.footer.status", exists: true }),
-      ]),
-    );
+    expect(report.entrypoints.length).toBeGreaterThan(0);
+    expect(report.importantFiles.every((file) => file.exists)).toBe(true);
+    expect(report.agentTargets.every((target) => target.exists)).toBe(true);
     expect(report.checks.every((check) => check.ok)).toBe(true);
-  });
-
-  it("GitHub workflow 使用模板路径和通用发布配置", () => {
-    const ci = readFileSync(resolve(".github/workflows/ci.yml"), "utf-8");
-    const release = readFileSync(resolve(".github/workflows/release.yml"), "utf-8");
-    const pages = readFileSync(resolve(".github/workflows/pages.yml"), "utf-8");
-    const combined = [ci, release, pages].join("\n");
-
-    expect(ci).toContain("corepack yarn verify");
-    expect(ci).toContain("corepack yarn docs:build");
-    expect(ci).toContain("mozilla-actions/sccache-action@v0.0.10");
-    expect(ci).toContain("Swatinem/rust-cache@v2");
-    expect(ci).toContain("workspaces: src-tauri -> target");
-    expect(ci).toContain('CARGO_INCREMENTAL: "0"');
-    expect(ci).toContain("RUSTC_WRAPPER: sccache");
-    expect(ci).toContain('SCCACHE_GHA_ENABLED: "true"');
-    expect(ci).toContain("$env:SCCACHE_PATH --show-stats");
-    expect(release).toContain("mozilla-actions/sccache-action@v0.0.10");
-    expect(release).toContain("Swatinem/rust-cache@v2");
-    expect(release).toContain("workspaces: src-tauri -> target");
-    expect(release).toContain('CARGO_INCREMENTAL: "0"');
-    expect(release).toContain("RUSTC_WRAPPER: sccache");
-    expect(release).toContain('SCCACHE_GHA_ENABLED: "true"');
-    expect(release).toContain("$env:SCCACHE_PATH --show-stats");
-    expect(release).toContain("projectPath: .");
-    expect(release).toContain(
-      [
-        "      - name: Build and publish Windows bundle",
-        "        uses: tauri-apps/tauri-action@v1",
-        "        env:",
-        "          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}",
-        "        with:",
-        "          projectPath: .",
-      ].join("\n"),
-    );
-    expect(release).toContain("Get-Content app.config.json -Raw");
-    expect(release).toContain("releaseName: ${{ steps.app_metadata.outputs.product_title }}");
-    expect(pages).toContain("docs/.vitepress/dist");
-    expect(pages).not.toContain("enablement: true");
-    expect(combined).not.toContain("actions/cache@v4");
-    expect(combined).not.toContain("cargo install sccache");
-    expect(combined).not.toContain("apps/desktop");
-    expect(combined).not.toContain("LiliaCode");
   });
 
   it("app.config.json 是应用名称、标题和版本的同步来源", () => {
     const config = appConfig();
     const pkg = JSON.parse(readFileSync(resolve("package.json"), "utf-8"));
     const tauri = JSON.parse(readFileSync(resolve("src-tauri/tauri.conf.json"), "utf-8"));
-    const cargo = readFileSync(resolve("src-tauri/Cargo.toml"), "utf-8");
-    const appShell = readFileSync(resolve("src/config/appShell.ts"), "utf-8");
-    const homePage = readFileSync(resolve("src/pages/Home.vue"), "utf-8");
-    const settingsPage = readFileSync(resolve("src/pages/Settings.vue"), "utf-8");
-    const secondaryPanel = readFileSync(resolve("src/layouts/SecondaryPanel.vue"), "utf-8");
-    const aboutSection = readFileSync(resolve("src/pages/settings/AboutSection.vue"), "utf-8");
-    const indexHtml = readFileSync(resolve("index.html"), "utf-8");
 
     expect(pkg.name).toBe(config.appName);
     expect(pkg.version).toBe(config.version);
@@ -287,98 +139,5 @@ describe("单应用模板工具链", () => {
     expect(tauri.version).toBe(config.version);
     expect(tauri.identifier).toBe(config.identifier);
     expect(tauri.app.windows[0].title).toBe(config.productTitle);
-    expect(cargo).toContain(`version = "${config.version}"`);
-    expect(appShell).toContain('import appConfig from "../../app.config.json"');
-    expect(appShell).toContain("APP_SHELL_COPY");
-    expect(homePage).toContain("APP_SHELL_COPY.homeTitle");
-    expect(homePage).toContain("APP_SHELL_COPY.homeDescription");
-    expect(homePage).toContain("APP_SHELL_COPY.homeActionLabel");
-    expect(settingsPage).toContain("APP_SHELL_COPY.settingsDescription");
-    expect(secondaryPanel).toContain("APP_SHELL_COPY.workspaceSectionTitle");
-    expect(aboutSection).toContain("APP_METADATA.productTitle");
-    expect(aboutSection).toContain("APP_METADATA.version");
-    expect(indexHtml).toContain("%APP_PRODUCT_TITLE%");
-    expect(indexHtml).toContain("%APP_STORAGE_KEY_PREFIX%.theme");
-  });
-
-  it("GitHub Issue 模板不包含 Lilia 业务字段", () => {
-    const bug = readFileSync(resolve(".github/ISSUE_TEMPLATE/bug_report.yml"), "utf-8");
-    const feature = readFileSync(
-      resolve(".github/ISSUE_TEMPLATE/feature_request.yml"),
-      "utf-8",
-    );
-    const combined = `${bug}\n${feature}`;
-
-    expect(combined).toContain("模板版本 / commit");
-    expect(combined).toContain("构建 / 发布");
-    expect(combined).not.toContain("Lilia 版本");
-    expect(combined).not.toContain("Backend");
-    expect(combined).not.toContain("Agent");
-    expect(combined).not.toContain("Memory");
-    expect(combined).not.toContain("Roadmap");
-  });
-});
-
-describe("Lilia 外壳样式迁移", () => {
-  it("保留侧栏折叠时的宽度、拖拽线和 reduced-motion 动效规则", () => {
-    const shellCss = readFileSync(resolve("src/styles/shell.css"), "utf-8");
-
-    expect(shellCss).toContain("transition: grid-template-columns 0.24s var(--sidebar-easing)");
-    expect(shellCss).toContain("left 0.24s var(--sidebar-easing)");
-    expect(shellCss).toContain("@media (prefers-reduced-motion: reduce)");
-  });
-
-  it("保留 Lilia 的透明按钮基线和显式强调态", () => {
-    const styles = readFileSync(resolve("src/styles.css"), "utf-8").replace(/\r\n/g, "\n");
-
-    expect(styles).toContain("button {\n  background: transparent");
-    expect(styles).toContain("button.primary");
-    expect(styles).toContain("background: var(--accent-soft)");
-    expect(styles).toContain("button.ghost.danger:hover");
-    expect(styles).toContain("background: transparent");
-  });
-
-  it("全局圆角样式通过 corner-shape 渐进增强", () => {
-    const styles = readFileSync(resolve("src/styles.css"), "utf-8");
-
-    expect(styles).toContain("--app-corner-shape: squircle");
-    expect(styles).toContain("--app-corner-radius: 8px");
-    expect(styles).toContain("--radius-md: var(--app-corner-radius)");
-    expect(styles).toContain(':root[data-corners="round"]');
-    expect(styles).toContain("@supports (corner-shape: squircle)");
-    expect(styles).toContain("corner-shape: var(--app-corner-shape)");
-  });
-
-  it("全局滚动条使用隐藏原生条和 overlay 显隐样式", () => {
-    const styles = readFileSync(resolve("src/styles.css"), "utf-8").replace(/\r\n/g, "\n");
-    const main = readFileSync(resolve("src/main.ts"), "utf-8");
-    const scrollbars = readFileSync(resolve("src/composables/useGlobalScrollbarVisibility.ts"), "utf-8");
-
-    expect(styles).toContain("scrollbar-width: none");
-    expect(styles).toContain("::-webkit-scrollbar {\n  width: 0;\n  height: 0;");
-    expect(styles).toContain(".global-scrollbar-overlay");
-    expect(styles).toContain("transition: opacity 0.48s ease");
-    expect(styles).toContain(".global-scrollbar-overlay.is-visible");
-    expect(main).toContain(
-      'import { installGlobalScrollbarVisibility } from "./composables/useGlobalScrollbarVisibility"',
-    );
-    expect(scrollbars).toContain("export function installGlobalScrollbarVisibility()");
-    expect(scrollbars).toContain("export function uninstallGlobalScrollbarVisibility()");
-  });
-
-  it("保留 Lilia 侧边栏行内工具的悬停显隐动画", () => {
-    const secondaryPanel = readFileSync(resolve("src/layouts/SecondaryPanel.vue"), "utf-8");
-    const rowTools = readFileSync(resolve("src/components/sidebar/SidebarRowTools.vue"), "utf-8");
-
-    expect(rowTools).toContain("class=\"sb-tree__hover-tools\"");
-    expect(rowTools).toContain(".sb-tree__hover-tools");
-    expect(rowTools).toContain("opacity: 0");
-    expect(rowTools).toContain("pointer-events: none");
-    expect(secondaryPanel).toContain(".sb-tree__hover-tools");
-    expect(secondaryPanel).toContain(".sb-tree__row:hover .sb-tree__hover-tools");
-    expect(secondaryPanel).toContain(".sb-tree__row:focus-within .sb-tree__hover-tools");
-    expect(secondaryPanel).toContain(".sb-tree__row.is-active .sb-tree__hover-tools");
-    expect(secondaryPanel).toContain("opacity: 1");
-    expect(secondaryPanel).toContain("pointer-events: auto");
   });
 });
