@@ -72,6 +72,7 @@ src-tauri/icons/
 *.db
 
 # AI / agent artifacts
+.codegraph/
 .claude/
 .claude-flow/
 .mcp.json
