@@ -21,6 +21,7 @@ Run checks that validate real behavior affected by the change. Prefer targeted f
 - Add tests only for behavior changes or meaningful regression risk.
 - Do not add tests for documentation-only, comment-only, or formatting-only changes.
 - Do not write low-value tests that only hard-match log text, incidental strings, implementation comments, or snapshot-like markup.
+- Do not use raw string matching as the main assertion when it does not prove the feature works; assert the behavior through roles, events, state changes, command effects, data results, or observable outcomes.
 - Test user-visible behavior, command results, route outcomes, config synchronization, permission availability, or data-contract handling.
 - For Agent debug changes, follow `$lilia-agent-debug` test-quality and gating requirements.
 - Keep tests focused on the changed capability and existing public behavior.
