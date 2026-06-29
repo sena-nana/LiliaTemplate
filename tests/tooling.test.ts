@@ -30,17 +30,25 @@ describe("单应用模板工具链", () => {
     expect(run.status).toBe(0);
 
     const report = JSON.parse(run.stdout) as {
+      mode: string;
       status: string;
-      entrypoints: Array<{ id: string; command: string }>;
-      importantFiles: Array<{ path: string; exists: boolean }>;
-      agentTargets: Array<{ id: string; path: string; exists: boolean }>;
+      desktopReplay: { requiredForReadiness: boolean };
+      environment: { frontendFlag: string };
       checks: Array<{ id: string; ok: boolean }>;
+      template: {
+        entrypoints: Array<{ id: string; command: string }>;
+        importantFiles: Array<{ path: string; exists: boolean }>;
+        agentTargets: Array<{ id: string; path: string; exists: boolean }>;
+      };
     };
 
+    expect(report.mode).toBe("agent-debug-readiness");
     expect(report.status).toBe("ready");
-    expect(report.entrypoints.length).toBeGreaterThan(0);
-    expect(report.importantFiles.every((file) => file.exists)).toBe(true);
-    expect(report.agentTargets.every((target) => target.exists)).toBe(true);
+    expect(report.environment.frontendFlag).toBe("VITE_LILIA_AGENT_DEBUG=1");
+    expect(report.desktopReplay.requiredForReadiness).toBe(false);
+    expect(report.template.entrypoints.length).toBeGreaterThan(0);
+    expect(report.template.importantFiles.every((file) => file.exists)).toBe(true);
+    expect(report.template.agentTargets.every((target) => target.exists)).toBe(true);
     expect(report.checks.every((check) => check.ok)).toBe(true);
   }, 15_000);
 

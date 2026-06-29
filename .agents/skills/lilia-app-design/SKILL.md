@@ -68,6 +68,14 @@ Keep app-specific CSS in the business component's scoped style. Move cross-page,
 - Respect `prefers-reduced-motion: reduce`.
 - Loading, empty, and disabled states must not resize controls or shift surrounding layout.
 
+## Agent-Friendly UI
+
+Use `$lilia-agent-debug` for detailed Agent debug implementation and validation rules. For design work, keep the user-facing UI normal while exposing stable hidden structure.
+
+- Keep `data-agent-id` invisible and non-semantic to users. Do not add public technical instructions, automation labels, or debug-only copy to the UI.
+- Important state must be visible as product state: pending approval, blocked work, failed action, empty result, loading, unavailable provider, and recoverable error all need clear user-facing states and real actions where applicable.
+- If a visible action cannot be executed, show a truthful unavailable state or remove the action. Do not present placeholder buttons, fake menus, fake sidebar items, or unconnected Agent affordances.
+
 ## Review Checklist
 
 - The UI still feels like a restrained engineering tool.
@@ -76,6 +84,8 @@ Keep app-specific CSS in the business component's scoped style. Move cross-page,
 - New colors come from LiliaUI tokens or belong in LiliaUI first.
 - App-specific styles are scoped to business components.
 - Navigation and actions are real, reachable, and wired.
+- `$lilia-agent-debug` is followed for Agent-operated flows.
+- No debug-only Agent affordance or technical implementation explanation leaks into production UI.
 - Light and dark themes remain readable.
 - Hover, active, loading, empty, and disabled states keep stable geometry.
 - Settings, shell, menus, theme, default assets, and window state remain owned by LiliaUI.

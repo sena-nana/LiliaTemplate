@@ -6,7 +6,7 @@
   "scripts": {
     "sync:app-config": "lilia-tools sync-app-config",
     "version:bump": "lilia-tools version-bump",
-    "agent:debug": "lilia-tools doctor",
+    "agent:debug": "node scripts/agent-debug.mjs",
     "check:package-manager": "lilia-tools check-package-manager",
     "dev": "lilia-build dev",
     "build": "lilia-build build",

@@ -10,6 +10,7 @@ description: Validation strategy for final Lilia desktop application changes. Us
 Run checks that validate real behavior affected by the change. Prefer targeted functional checks over broad or brittle assertions.
 
 - Always consider `yarn agent:debug --json` when app boundaries, important files, or recommended checks may have changed.
+- Use `$lilia-agent-debug` to choose checks for UI main paths, `data-agent-id`, debug harnesses, and desktop replay support.
 - Use `yarn test` for route behavior, command wiring, component behavior, config synchronization expectations, and business logic.
 - Use `yarn build` for frontend compile, bundling, route import, and type integration risk.
 - Use `cargo check --manifest-path src-tauri/Cargo.toml` for app-owned Rust changes.
@@ -21,6 +22,7 @@ Run checks that validate real behavior affected by the change. Prefer targeted f
 - Do not add tests for documentation-only, comment-only, or formatting-only changes.
 - Do not write low-value tests that only hard-match log text, incidental strings, implementation comments, or snapshot-like markup.
 - Test user-visible behavior, command results, route outcomes, config synchronization, permission availability, or data-contract handling.
+- For Agent debug changes, follow `$lilia-agent-debug` test-quality and gating requirements.
 - Keep tests focused on the changed capability and existing public behavior.
 
 ## LiliaUI Dependency Changes

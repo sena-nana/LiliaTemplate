@@ -29,6 +29,9 @@ description: Coding workflow for final Lilia desktop applications. Use when Code
 - Before changing a cross-end contract, define the boundary first, then update frontend, backend, permissions, and functional tests together.
 - Do not display technical explanations in the UI.
 - Do not add controls, routes, sidebar entries, commands, or disabled placeholders that are not connected to real behavior.
+- Use `$lilia-agent-debug` when adding or changing `data-agent-id`, debug harnesses, `yarn agent:debug`, or desktop replay support.
+- When adding Agent, automation, timeline, permission, or approval behavior, define the user-visible workflow, runtime command, event shape, persistence, and fallback before wiring UI.
+- Keep provider-specific or experimental payloads behind adapter/runtime boundaries. UI should use app or Lilia-level contracts and round-trip opaque provider context only when required.
 - Prefer simple data flow over new abstractions. Add an abstraction only when it removes real duplication or matches an existing local pattern.
 - Avoid comments that restate code. Put long-lived context, tradeoffs, or unresolved design notes in docs only when they are useful to future maintainers.
 - Never overwrite user or other-agent changes. If nearby files are dirty, inspect and work with those changes.
@@ -53,4 +56,5 @@ description: Coding workflow for final Lilia desktop applications. Use when Code
 
 - Remove duplicate branches, dead state, unused helper functions, and comments that only narrate the code.
 - Confirm no fake UI or unconnected action was introduced.
+- Confirm `$lilia-agent-debug` requirements are met when the changed flow needs Agent/debug validation.
 - Run the smallest meaningful validation for the changed behavior, or explain why validation was not run.

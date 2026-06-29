@@ -39,6 +39,26 @@ Do not edit `node_modules/@lilia/*`. Modify the LiliaUI source repository, valid
 - Repeated style or component pattern across final apps: implement in LiliaUI.
 - One-off business visualization or workflow-specific style: keep scoped in the final app component.
 
+## Agent-Friendly Ownership
+
+Use `$lilia-agent-debug` for detailed Agent debugging workflows. Use this section only to decide ownership.
+
+Put reusable Agent-friendly affordances in LiliaUI or its source packages:
+
+- Stable `data-agent-id` on shared shell controls, shared dialogs, common menus, settings, titlebar, sidebar, and reusable LiliaUI components.
+- Shared debug harness, template checks, dev-only instrumentation, screenshot/replay tooling, and agent-debug build wrappers.
+- Common timeline, pending-action, permission, plan, markdown, or process-observation components only when they are generic UI primitives and do not embed Lilia-specific provider protocols.
+- Shared display derivation helpers or contracts when multiple apps need the same event-to-UI mapping.
+
+Keep final-app-specific Agent behavior in the final app:
+
+- Business workflows, app routes, app-owned commands, app-specific Tauri state, and persistence.
+- App-specific `data-agent-id` values for feature controls, rows, records, and actions.
+- App-specific Agent timeline, approval, automation, or runner logic when the app owns the data contract or provider boundary.
+- Feature validation scenarios that exercise real app behavior through the shared agent-debug harness.
+
+If both sides are involved, define the public LiliaUI/component or debug interface first, then wire final-app behavior through that interface. Do not make the final app depend on private Lilia implementation details, provider payloads, or undocumented DOM structure.
+
 ## Guardrails
 
 - Do not copy Lilia-specific paths, protocols, providers, task timelines, or verification scripts into final apps unless the app truly implements that capability.
