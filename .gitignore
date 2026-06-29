@@ -62,6 +62,10 @@ target/
 *.pdb
 src-tauri/gen/schemas/
 
+# Generated Lilia default assets
+public/fonts/
+src-tauri/icons/
+
 # Databases
 *.sqlite
 *.sqlite3

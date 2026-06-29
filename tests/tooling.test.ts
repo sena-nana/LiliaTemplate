@@ -25,9 +25,17 @@ function appConfig() {
   };
 }
 
+function yarnRun(args: string[], options: Parameters<typeof spawnSync>[2]) {
+  if (process.platform !== "win32") {
+    return spawnSync("yarn", args, options);
+  }
+
+  return spawnSync(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", "yarn.cmd", ...args], options);
+}
+
 describe("单应用模板工具链", () => {
   it("包管理器检查接受 Yarn 4 并拒绝其他入口", () => {
-    const ok = spawnSync("node", ["scripts/check-package-manager.mjs"], {
+    const ok = spawnSync("node", ["node_modules/@lilia/tools/bin/lilia-tools.mjs", "check-package-manager"], {
       cwd: resolve("."),
       env: scriptEnv({
         npm_config_user_agent: "yarn/4.14.1 npm/? node/?",
@@ -36,7 +44,7 @@ describe("单应用模板工具链", () => {
     });
     expect(ok.status).toBe(0);
 
-    const bad = spawnSync("node", ["scripts/check-package-manager.mjs"], {
+    const bad = spawnSync("node", ["node_modules/@lilia/tools/bin/lilia-tools.mjs", "check-package-manager"], {
       cwd: resolve("."),
       env: scriptEnv({
         npm_config_user_agent: "npm/11.0.0 node/?",
@@ -47,7 +55,7 @@ describe("单应用模板工具链", () => {
   });
 
   it("Tauri dev 脚本 dry-run 输出动态端口配置", () => {
-    const run = spawnSync("node", ["scripts/tauri-dev.mjs", "--verbose"], {
+    const run = yarnRun(["tauri:dev", "--verbose"], {
       cwd: resolve("."),
       env: {
         ...process.env,
@@ -70,7 +78,7 @@ describe("单应用模板工具链", () => {
   });
 
   it("Tauri install 脚本默认追加本机 CPU 优化", () => {
-    const run = spawnSync("node", ["scripts/tauri-install.mjs"], {
+    const run = yarnRun(["tauri:install"], {
       cwd: resolve("."),
       env: {
         ...process.env,
@@ -88,7 +96,7 @@ describe("单应用模板工具链", () => {
   });
 
   it("Tauri install 脚本不覆盖显式 target-cpu 配置", () => {
-    const run = spawnSync("node", ["scripts/tauri-install.mjs"], {
+    const run = yarnRun(["tauri:install"], {
       cwd: resolve("."),
       env: {
         ...process.env,
@@ -106,7 +114,7 @@ describe("单应用模板工具链", () => {
   });
 
   it("Agent 调试入口输出模板边界和可执行验证入口", () => {
-    const run = spawnSync("node", ["scripts/agent-debug.mjs", "--json"], {
+    const run = yarnRun(["agent:debug", "--json"], {
       cwd: resolve("."),
       encoding: "utf-8",
     });

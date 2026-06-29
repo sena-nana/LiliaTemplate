@@ -1,21 +1,13 @@
-import { defineConfig } from "vitepress";
+import { defineLiliaDocsConfig } from "@lilia/config";
 
-const repository = process.env.GITHUB_REPOSITORY?.split("/")[1];
-const isProjectPages = repository && !repository.endsWith(".github.io");
-const base = process.env.GITHUB_ACTIONS && isProjectPages ? `/${repository}/` : "/";
-
-export default defineConfig({
+export default defineLiliaDocsConfig({
   title: "Tauri Template",
   description: "A minimal Tauri 2 + Vue 3 desktop application template.",
-  base,
-  themeConfig: {
-    nav: [{ text: "开发启动", link: "/guide/development" }],
-    sidebar: [
-      {
-        text: "指南",
-        items: [{ text: "开发启动", link: "/guide/development" }],
-      },
-    ],
-    socialLinks: [],
-  },
+  nav: [{ text: "开发启动", link: "/guide/development" }],
+  sidebar: [
+    {
+      text: "指南",
+      items: [{ text: "开发启动", link: "/guide/development" }],
+    },
+  ],
 });

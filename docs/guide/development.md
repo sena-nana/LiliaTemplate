@@ -12,8 +12,7 @@ Tauri-Template/
 │   ├── routes.ts
 │   └── main.ts
 ├── src-tauri/
-├── tests/
-└── scripts/
+└── tests/
 ```
 
 ## 本地运行
