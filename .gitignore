@@ -34,6 +34,7 @@ pnpm-debug.log*
 
 # Node / frontend
 node_modules/
+yarn.lock
 .npm/
 .yarn/*
 !.yarn/patches
