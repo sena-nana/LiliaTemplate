@@ -24,26 +24,26 @@
     "verify": "lilia-build verify"
   },
   "dependencies": {
-    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&head=main",
-    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&head=main",
-    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&head=main",
-    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&head=main",
-    "@lucide/vue": "^1.17.0",
-    "@tauri-apps/api": "^2.11.0",
-    "vue": "^3.5.35",
+    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=75cbc65884886891c8861921acc3872cb837a037",
+    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=75cbc65884886891c8861921acc3872cb837a037",
+    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=75cbc65884886891c8861921acc3872cb837a037",
+    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=75cbc65884886891c8861921acc3872cb837a037",
+    "@lucide/vue": "^1.22.0",
+    "@tauri-apps/api": "^2.11.1",
+    "vue": "^3.5.39",
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.2",
+    "@tauri-apps/cli": "^2.11.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/vue": "^8.1.0",
-    "@vue/compiler-sfc": "^3.5.35",
+    "@vue/compiler-sfc": "^3.5.39",
     "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16",
+    "vite": "^8.1.0",
     "vitepress": "^1.6.4",
-    "vitest": "^4.1.8",
-    "vue-tsc": "^3.3.4"
+    "vitest": "^4.1.9",
+    "vue-tsc": "^3.3.5"
   },
   "packageManager": "yarn@4.14.1"
 }
