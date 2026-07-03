@@ -21,6 +21,9 @@
     "tauri:build": "lilia-build tauri-build",
     "tauri:build:no-bundle": "lilia-build tauri-build --no-bundle",
     "tauri:install": "lilia-build tauri-install",
+    "liliaui:local": "yarn check:package-manager && node scripts/lilia-ui-deps.mjs local",
+    "liliaui:remote": "yarn check:package-manager && node scripts/lilia-ui-deps.mjs remote",
+    "liliaui:status": "yarn check:package-manager && node scripts/lilia-ui-deps.mjs status",
     "verify": "lilia-build verify"
   },
   "dependencies": {
