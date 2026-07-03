@@ -11,12 +11,12 @@
     "dev": "lilia-build dev",
     "build": "lilia-build build",
     "pretest": "lilia-build prepare",
-    "test": "vitest run",
+    "test": "lilia-build test",
     "docs:dev": "lilia-build docs dev",
     "docs:build": "lilia-build docs build",
     "docs:preview": "lilia-build docs preview",
-    "preview": "vite preview",
-    "tauri": "tauri",
+    "preview": "lilia-build preview",
+    "tauri": "lilia-build tauri",
     "tauri:dev": "lilia-build tauri-dev",
     "tauri:build": "lilia-build tauri-build",
     "tauri:build:no-bundle": "lilia-build tauri-build --no-bundle",
@@ -24,26 +24,10 @@
     "verify": "lilia-build verify"
   },
   "dependencies": {
-    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=75cbc65884886891c8861921acc3872cb837a037",
-    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=75cbc65884886891c8861921acc3872cb837a037",
-    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=75cbc65884886891c8861921acc3872cb837a037",
-    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=75cbc65884886891c8861921acc3872cb837a037",
-    "@lucide/vue": "^1.22.0",
-    "@tauri-apps/api": "^2.11.1",
-    "vue": "^3.5.39",
-    "vue-router": "^5.1.0"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^2.11.4",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/vue": "^8.1.0",
-    "@vue/compiler-sfc": "^3.5.39",
-    "jsdom": "^29.1.1",
-    "typescript": "^6.0.3",
-    "vite": "^8.1.0",
-    "vitepress": "^1.6.4",
-    "vitest": "^4.1.9",
-    "vue-tsc": "^3.3.5"
+    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f",
+    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f",
+    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f",
+    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f"
   },
   "packageManager": "yarn@4.14.1"
 }
