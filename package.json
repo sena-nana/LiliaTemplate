@@ -27,10 +27,10 @@
     "verify": "lilia-build verify"
   },
   "dependencies": {
-    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f",
-    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f",
-    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f",
-    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=ed10f51023c321c1bbec799979e1047f91eb9f2f"
+    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=2d6554f051a4cebc98fe55af5b2bcb9980412128",
+    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=2d6554f051a4cebc98fe55af5b2bcb9980412128",
+    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=2d6554f051a4cebc98fe55af5b2bcb9980412128",
+    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=2d6554f051a4cebc98fe55af5b2bcb9980412128"
   },
   "packageManager": "yarn@4.14.1"
 }

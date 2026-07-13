@@ -32,9 +32,9 @@ describe("基础路由", () => {
     await renderAt("/");
 
     expect(screen.getAllByRole("link", { name: "设置" })).toHaveLength(1);
-    expect(
-      screen.getByRole("link", { name: APP_SHELL_COPY.statusTitle }),
-    ).toHaveClass("sb-conn--ok");
+    const status = screen.getByRole("link", { name: APP_SHELL_COPY.statusLabel });
+    expect(status).toHaveClass("sb-conn--ok");
+    expect(status).toHaveAttribute("title", APP_SHELL_COPY.statusTitle);
   });
 
   it("设置页默认显示外观设置并使用设置侧栏", async () => {
