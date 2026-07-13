@@ -14,7 +14,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["image-png"] }
-tauri-plugin-lilia = { git = "https://github.com/sena-nana/LiliaUI", branch = "main" }
+tauri-plugin-lilia = { git = "https://github.com/sena-nana/LiliaUI", rev = "2d6554f051a4cebc98fe55af5b2bcb9980412128" }
 tauri-plugin-store = "2"
 
 [dev-dependencies]
