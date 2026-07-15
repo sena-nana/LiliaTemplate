@@ -18,11 +18,14 @@ Tauri-Template/
 ## 本地运行
 
 ```bash
+npm install --global corepack@0.35.0
 corepack enable
-yarn install
-yarn dev
-yarn tauri:dev
+corepack yarn install
+corepack yarn dev
+corepack yarn tauri:dev
 ```
+
+本仓库统一使用 Node.js 26.5.0 与 Yarn 4.17.1。Corepack 从 Node.js 25 起不再随 Node.js 分发，因此首次使用前需要通过 npm 显式安装 Corepack 0.35.0。
 
 ## LiliaUI 本地联调
 
