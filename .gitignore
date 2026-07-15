@@ -28,13 +28,13 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+!.env.yarn
 *.pem
 *.key
 .secrets/
 
 # Node / frontend
 node_modules/
-yarn.lock
 .npm/
 .yarn/*
 !.yarn/patches
