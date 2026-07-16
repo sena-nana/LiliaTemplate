@@ -1,0 +1,5 @@
+{
+  "productTitle": "Nana Basic",
+  "ui": { "preset": "nana", "density": "comfortable" },
+  "onboarding": { "enabled": true }
+}

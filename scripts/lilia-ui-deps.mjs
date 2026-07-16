@@ -12,7 +12,10 @@ const localRoot = resolve(repoRoot, process.env.LILIA_UI_LOCAL_PATH || "../Lilia
 const packages = [
   ["@lilia/build", "packages/build"],
   ["@lilia/config", "packages/config"],
+  ["@lilia/nana-ui", "packages/nana-ui"],
   ["@lilia/tools", "packages/tools"],
+  ["@lilia/ui-contract", "packages/ui-contract"],
+  ["@lilia/ui-foundation", "packages/ui-foundation"],
   ["@lilia/ui", "packages/ui"],
 ];
 
@@ -69,9 +72,15 @@ function runYarn(args) {
 }
 
 function printStatus() {
-  const resolutions = readRootManifest().resolutions ?? {};
+  const manifest = readRootManifest();
+  const dependencies = manifest.dependencies ?? {};
+  const resolutions = manifest.resolutions ?? {};
   console.log("LiliaUI dependency source:");
   for (const [name] of packages) {
+    if (dependencies[name] === undefined) {
+      console.log(`  ${name}: inactive`);
+      continue;
+    }
     const resolution = resolutions[name];
     const source =
       typeof resolution === "string" && resolution.startsWith("portal:")

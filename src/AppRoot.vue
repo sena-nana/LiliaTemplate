@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import ContextMenuHost from "@lilia/ui/components/ContextMenuHost";
-import OverlayHost from "@lilia/ui/components/OverlayHost";
+import type { Component } from "vue";
 import { RouterView } from "vue-router";
-import { appOverlays } from "./overlays";
+import type { UIPolicy } from "./ui/contract";
+
+defineProps<{ provider?: Component; policy: UIPolicy; hosts?: Component }>();
 </script>
 
 <template>
-  <RouterView />
-  <ContextMenuHost />
-  <OverlayHost :components="appOverlays" />
+  <component :is="provider" v-if="provider" :policy="policy">
+    <RouterView />
+    <component :is="hosts" v-if="hosts" />
+  </component>
+  <template v-else>
+    <RouterView />
+    <component :is="hosts" v-if="hosts" />
+  </template>
 </template>

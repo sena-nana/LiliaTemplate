@@ -55,6 +55,8 @@ dist/
 coverage/
 *.lcov
 .vitest-cache/
+playwright-report/
+test-results/
 
 # Rust / Tauri
 target/

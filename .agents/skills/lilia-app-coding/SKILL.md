@@ -16,7 +16,7 @@ description: Coding workflow for final Lilia desktop applications. Use when Code
 
 - Final apps own app configuration, routes, commands, business pages, and app-specific Tauri Rust boundaries.
 - Put new business pages and feature logic under `src/features/<feature>/`.
-- Connect business pages through `src/routes.ts` with async lazy imports unless there is a clear reason not to.
+- Connect business pages through the active preset adapter with async lazy imports unless there is a clear reason not to.
 - Keep app command registration in `src/commands.ts`.
 - Keep app-specific Rust commands, state, and permissions inside `src-tauri`.
 - Do not copy public UI, shell, settings, menus, theme, global CSS, build wrappers, config sync, template checks, default assets, or window-state runtime code from LiliaUI into the app.
@@ -39,8 +39,9 @@ description: Coding workflow for final Lilia desktop applications. Use when Code
 ## Frontend Pattern
 
 - Start feature UI from `src/features/<feature>/`.
-- Keep shared application wiring in `src/app.config.ts`, `src/routes.ts`, and `src/commands.ts`.
-- Use LiliaUI components, styles, CSS tokens, and shell conventions before adding local UI.
+- Keep shared application wiring in `src/ui/activePreset.ts`, `src/routes.ts`, and `src/commands.ts`.
+- Import components, styles, layouts, settings, and state only through `src/ui`; never import `@lilia/ui` or `@lilia/nana-ui` directly from a feature.
+- Use the selected Layer's components, CSS tokens, and shell conventions before adding local UI.
 - Keep business component styles scoped.
 - Ensure text, controls, loading state, empty state, and error state are stable on desktop and narrow viewports.
 

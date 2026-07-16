@@ -4,8 +4,10 @@ import { afterEach } from "vitest";
 
 afterEach(() => {
   cleanup();
-  localStorage.clear();
-  document.documentElement.removeAttribute("data-corners");
-  document.documentElement.removeAttribute("data-theme");
-  document.documentElement.style.removeProperty("--app-corner-radius");
+  if (typeof localStorage !== "undefined") localStorage.clear();
+  if (typeof document !== "undefined") {
+    document.documentElement.removeAttribute("data-corners");
+    document.documentElement.removeAttribute("data-theme");
+    document.documentElement.style.removeProperty("--app-corner-radius");
+  }
 });

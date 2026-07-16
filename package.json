@@ -9,33 +9,45 @@
     "agent:debug": "lilia-tools agent-debug",
     "check:package-manager": "lilia-tools check-package-manager",
     "dev": "lilia-build dev",
-    "build": "lilia-build build",
+    "build": "lilia-build build && node scripts/check-ui-bundle.mjs",
     "pretest": "lilia-build prepare",
     "test": "lilia-build test",
     "docs:dev": "lilia-build docs dev",
     "docs:build": "lilia-build docs build",
     "docs:preview": "lilia-build docs preview",
+    "test:e2e": "playwright test",
     "preview": "lilia-build preview",
     "tauri": "lilia-build tauri",
     "tauri:dev": "lilia-build tauri-dev",
     "tauri:build": "lilia-build tauri-build",
     "tauri:build:no-bundle": "lilia-build tauri-build --no-bundle",
     "tauri:install": "lilia-build tauri-install",
+    "ui:preset": "node scripts/ui-preset.mjs",
+    "ui:status": "node scripts/ui-preset.mjs status",
+    "ui:migrate": "lilia-tools ui-migrate",
     "liliaui:local": "yarn check:package-manager && node scripts/lilia-ui-deps.mjs local",
     "liliaui:remote": "yarn check:package-manager && node scripts/lilia-ui-deps.mjs remote",
     "liliaui:status": "yarn check:package-manager && node scripts/lilia-ui-deps.mjs status",
-    "verify": "lilia-build verify"
+    "verify": "lilia-build verify && node scripts/check-ui-bundle.mjs"
   },
   "dependencies": {
-    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=304f54706cf0a48469531e534efe7d775aaaacf4",
-    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=304f54706cf0a48469531e534efe7d775aaaacf4",
-    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=304f54706cf0a48469531e534efe7d775aaaacf4",
-    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=304f54706cf0a48469531e534efe7d775aaaacf4",
+    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&commit=9bb7da711100ce34945047d901073b569a4e4aa7",
+    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=9bb7da711100ce34945047d901073b569a4e4aa7",
+    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=9bb7da711100ce34945047d901073b569a4e4aa7",
+    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=9bb7da711100ce34945047d901073b569a4e4aa7",
+    "@lilia/ui-contract": "github:sena-nana/LiliaUI#workspace=@lilia/ui-contract&commit=9bb7da711100ce34945047d901073b569a4e4aa7",
+    "@lilia/ui-foundation": "github:sena-nana/LiliaUI#workspace=@lilia/ui-foundation&commit=9bb7da711100ce34945047d901073b569a4e4aa7",
+    "@lucide/vue": "^1.22.0",
     "vue": "^3.5.39",
     "vue-router": "^5.1.0"
   },
   "engines": {
     "node": ">=26.0.0 <27"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "cross-env": "^10.1.0",
+    "typescript": "^6.0.3"
   },
   "packageManager": "yarn@4.17.1+sha512.ccbfabf7d7b6b32075088be9386fb9a2e00bb6887ef07fa56effabc890a56d53da1ccc4128d62db245fcbd3961b236d75335bdf7d5320ed6eafb7588b7ad4697"
 }

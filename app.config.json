@@ -3,5 +3,13 @@
   "productTitle": "Tauri Template",
   "version": "0.1.0",
   "identifier": "com.tauritemplate.desktop",
-  "storageKeyPrefix": "tauri-template"
+  "storageKeyPrefix": "tauri-template",
+  "ui": {
+    "preset": "lilia",
+    "density": "compact",
+    "accent": "blue"
+  },
+  "onboarding": {
+    "enabled": true
+  }
 }

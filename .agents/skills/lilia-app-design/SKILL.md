@@ -19,10 +19,10 @@ Never show technical implementation notes, roadmap placeholders, or UI that look
 
 ## Layout
 
-- Use `@lilia/ui` for the desktop shell, titlebar, sidebar, settings page, menu language, theme, and page base classes.
+- Use the local `src/ui` facade for the selected Layer's shell, sidebar, settings page, theme, and page patterns.
 - Put final app business pages in the main workspace only. Do not rebuild the shell structure inside an app page.
-- Configure navigation, footer status, and settings entry through `src/app.config.ts`.
-- Connect pages through `src/routes.ts`, preferably with async component imports.
+- Configure navigation, status, settings, and capability wiring through the active preset adapter.
+- Connect pages through async component imports in the active preset adapter.
 - Avoid landing-page composition, hero blocks, oversized headings, decorative panels, marketing card streams, and nested cards.
 - Use cards only for independent information groups, repeated items, dialogs, and actual tool containers.
 
@@ -38,7 +38,7 @@ Never show technical implementation notes, roadmap placeholders, or UI that look
 
 ## Tokens And Styles
 
-Use CSS variables from `@lilia/ui/styles.css`. Do not create a second public color system inside the final app.
+Use CSS variables from `src/ui/styles.css`. Do not create a second public color system inside the final app.
 
 - Surface: `--bg`, `--bg-elev`, `--bg-subtle`
 - Interaction: `--bg-hover`, `--bg-active`, `--border-soft`, `--border`, `--border-strong`
