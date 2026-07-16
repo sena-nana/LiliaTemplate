@@ -32,8 +32,8 @@ When changing the local LiliaUI dependency switch, package scripts, or documenta
 
 - Treat the switch itself as the behavior under test. Do not add low-value tests that hard-match script output.
 - Run `node --check scripts/lilia-ui-deps.mjs` after editing the switch script.
-- Run `yarn liliaui:local`, confirm the four `@lilia/*` packages report local `portal:` sources, then run `yarn liliaui:remote` and confirm `yarn liliaui:status` reports remote again.
-- Confirm `package.json` and `yarn.lock` do not retain `resolutions` or `portal:../LiliaUI` entries after switching back.
+- Run `yarn liliaui:local`, confirm every active `@lilia/*` package reports a local `portal:` source, then run `yarn liliaui:remote` and confirm `yarn liliaui:status` reports remote again.
+- Confirm `package.json` and `yarn.lock` do not retain local `resolutions` or `portal:` entries after switching back.
 - Run `yarn install --immutable` to prove the committed default dependency state still uses the pinned GitHub lockfile.
 - Skip broader desktop or Agent validation unless the change also affects app runtime behavior, build wrappers, UI, commands, or the Agent debug harness.
 
@@ -42,6 +42,7 @@ When a final app consumes a changed LiliaUI package:
 - Validate LiliaUI in its source repository first: use `yarn typecheck` and `yarn test` for package or UI changes.
 - For `tauri-plugin-lilia`, run `cargo test -p tauri-plugin-lilia` in LiliaUI.
 - After refreshing the final app dependency or lockfile, run at least `yarn agent:debug --json`, `yarn test`, and any affected build or Tauri check.
+- For preset work, verify Lilia and Nana against both remote and local sources. Each combination must pass tests, production bundle guard, and Tauri no-bundle compilation; Nana additionally runs browser workflows.
 
 ## Reporting
 

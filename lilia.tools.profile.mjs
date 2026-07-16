@@ -1,4 +1,8 @@
 import { defineToolsProfile } from "@lilia/tools";
+import { readFileSync } from "node:fs";
+
+const preset = JSON.parse(readFileSync(new URL("./app.config.json", import.meta.url), "utf8")).ui?.preset ?? "lilia";
+const isNana = preset === "nana";
 
 export default defineToolsProfile({
   requireSingleAppRoot: true,
@@ -6,7 +10,9 @@ export default defineToolsProfile({
     "@lilia/build",
     "@lilia/config",
     "@lilia/tools",
-    "@lilia/ui",
+    isNana ? "@lilia/nana-ui" : "@lilia/ui",
+    "@lilia/ui-contract",
+    "@lilia/ui-foundation",
     "vue",
     "vue-router",
   ],
@@ -19,23 +25,23 @@ export default defineToolsProfile({
     ["src/main.ts", "Vue mount entry"],
     ["src/AppRoot.vue", "application-owned root and global hosts"],
     ["src/app.ts", "Vue, Router, Shell, commands, and provider assembly"],
-    ["src/app.config.ts", "application shell navigation"],
     ["src/routes.ts", "application routes"],
     ["src/commands.ts", "application command map"],
     ["src/overlays.ts", "application overlay composition"],
-    ["src/runtime.ts", "optional UI runtime installers"],
-    ["src/diagnostics.ts", "development-only diagnostics installer"],
-    ["src/settings.ts", "application settings model"],
-    ["src/features/home/HomePage.vue", "default application page"],
+    ["src/ui/index.ts", "active UI facade"],
+    ["src/ui/preset.ts", "active preset adapter"],
+    [isNana ? "src/features/nana/home/HomePage.vue" : "src/features/home/HomePage.vue", "default application page"],
     ["tests/app.test.ts", "explicit application assembly test"],
     ["tests/tooling.test.ts", "template tooling contract tests"],
     ["docs/guide/development.md", "development workflow"],
   ],
   agentTargetFiles: {
-    "src/features/home/HomePage.vue": [
-      ["home.page"],
-      ["home.header"],
-      ["home.start-card"],
+    [isNana ? "src/features/nana/home/HomePage.vue" : "src/features/home/HomePage.vue"]: [
+      ...(isNana ? [["home.page"], ["home.recent"], ["home.device"]] : [
+        ["home.page"],
+        ["home.header"],
+        ["home.start-card"],
+      ]),
     ],
   },
   boundaries: {

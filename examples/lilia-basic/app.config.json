@@ -1,0 +1,5 @@
+{
+  "productTitle": "Lilia Basic",
+  "ui": { "preset": "lilia", "density": "compact" },
+  "onboarding": { "enabled": false }
+}

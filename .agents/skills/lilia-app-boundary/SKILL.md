@@ -14,12 +14,13 @@ Move or implement behavior in LiliaUI when it is reusable shell, UI system, styl
 ## Final App Owns
 
 - `app.config.json`: app name, product title, version, identifier, storage prefix, and app shell copy.
-- `src/app.config.ts`: app navigation, footer status, settings copy, and app-level shell configuration.
-- `src/routes.ts`: final app routes and lazy-loaded business pages.
+- `src/ui/activePreset.ts`: generated app navigation, settings copy, shell props, and capability composition for the selected preset.
+- `src/routes.ts` and the active preset adapter: final app routes and lazy-loaded business pages.
 - `src/commands.ts`: app command registration exposed to LiliaUI runtime.
 - `src/features/**`: app business pages, workflows, state, and scoped styles.
 - `src-tauri/**`: app-specific Rust commands, app-specific state, capabilities, and Tauri configuration.
 - `tests/**`: behavior tests for final app routes, commands, configuration, and business workflows.
+- `src/ui/**`: the stable app-facing facade and generated build-time preset adapter; business features import this facade, never a concrete Layer.
 
 ## LiliaUI Owns
 
@@ -33,7 +34,7 @@ Do not edit `node_modules/@lilia/*`. Modify the LiliaUI source repository, valid
 
 ## Common Decisions
 
-- New business page or workflow: implement in the final app under `src/features`, then wire through `src/routes.ts` and `src/app.config.ts`.
+- New business page or workflow: implement in the final app under `src/features`, then wire it through the active preset adapter with an async import.
 - New app-specific command: implement in final app frontend and `src-tauri`, then update capabilities and tests.
 - Titlebar, sidebar, shell layout, settings, menu, theme, default resource, config sync, template check, build flow, or window-state change: implement in LiliaUI first.
 - Repeated style or component pattern across final apps: implement in LiliaUI.
@@ -58,6 +59,8 @@ Keep final-app-specific Agent behavior in the final app:
 - Feature validation scenarios that exercise real app behavior through the shared agent-debug harness.
 
 If both sides are involved, define the public LiliaUI/component or debug interface first, then wire final-app behavior through that interface. Do not make the final app depend on private Lilia implementation details, provider payloads, or undocumented DOM structure.
+
+Keep Layer selection at build time. Never import both complete Layers into a runtime preset registry.
 
 ## Guardrails
 

@@ -1,13 +1,4 @@
-import { LiliaSettingsPage } from "@lilia/ui/settings";
 import type { RouteRecordRaw } from "vue-router";
+import { activeUIPreset } from "./ui/preset";
 
-const HomePage = () => import("./features/home/HomePage.vue");
-
-export const routes: RouteRecordRaw[] = [
-  { path: "", component: HomePage, meta: { sidebar: "main", returnable: true } },
-  {
-    path: "settings",
-    component: LiliaSettingsPage,
-    meta: { sidebar: "settings", lockSidebar: true, returnable: false },
-  },
-];
+export const routes: readonly RouteRecordRaw[] = activeUIPreset.routes;

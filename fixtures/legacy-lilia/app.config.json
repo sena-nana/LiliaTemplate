@@ -1,0 +1,8 @@
+{
+  "appName": "legacy-lilia-app",
+  "productTitle": "Legacy Lilia App",
+  "version": "0.1.0",
+  "identifier": "dev.lilia.legacy",
+  "storageKeyPrefix": "legacy-lilia",
+  "ui": { "preset": "lilia", "density": "compact" }
+}

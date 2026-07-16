@@ -1,0 +1,11 @@
+{
+  "name": "legacy-lilia-app",
+  "private": true,
+  "dependencies": {
+    "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&commit=legacy",
+    "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&commit=legacy",
+    "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&commit=legacy",
+    "@lilia/ui-contract": "github:sena-nana/LiliaUI#workspace=@lilia/ui-contract&commit=legacy",
+    "@lilia/ui-foundation": "github:sena-nana/LiliaUI#workspace=@lilia/ui-foundation&commit=legacy"
+  }
+}
