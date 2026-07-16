@@ -36,6 +36,7 @@ describe("单应用模板工具链", () => {
       environment: { frontendFlag: string };
       checks: Array<{ id: string; ok: boolean }>;
       template: {
+        boundaries: { includes: string[]; excludes: string[] };
         entrypoints: Array<{ id: string; command: string }>;
         importantFiles: Array<{ path: string; exists: boolean }>;
         agentTargets: Array<{ id: string; path: string; exists: boolean }>;
@@ -46,7 +47,12 @@ describe("单应用模板工具链", () => {
     expect(report.status).toBe("ready");
     expect(report.environment.frontendFlag).toBe("VITE_LILIA_AGENT_DEBUG=1");
     expect(report.desktopReplay.requiredForReadiness).toBe(false);
+    expect(report.template.boundaries.includes).toContain("application bootstrap and routing");
     expect(report.template.entrypoints.length).toBeGreaterThan(0);
+    expect(report.template.importantFiles).toContainEqual(expect.objectContaining({
+      path: "src/AppRoot.vue",
+      exists: true,
+    }));
     expect(report.template.importantFiles.every((file) => file.exists)).toBe(true);
     expect(report.template.agentTargets.every((target) => target.exists)).toBe(true);
     expect(report.checks.every((check) => check.ok)).toBe(true);

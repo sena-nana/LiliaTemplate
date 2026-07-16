@@ -1,13 +1,9 @@
-<script setup lang="ts">
-import { APP_SHELL_COPY } from "@lilia/ui";
-</script>
-
 <template>
   <section data-agent-id="home.page">
     <div class="page-header" data-agent-id="home.header">
       <div>
-        <h1>{{ APP_SHELL_COPY.homeTitle }}</h1>
-        <p>{{ APP_SHELL_COPY.homeDescription }}</p>
+        <h1>Tauri 应用模板</h1>
+        <p>应用已准备就绪。</p>
       </div>
     </div>
 

@@ -1,5 +1,5 @@
 import appConfigJson from "../app.config.json";
-import type { LiliaAppConfig } from "@lilia/ui";
+import type { LiliaUiConfig } from "@lilia/ui/shell";
 
 export const appConfig = {
   appName: appConfigJson.appName,
@@ -9,8 +9,8 @@ export const appConfig = {
   appearance: {
     backdropTarget: "sidebar",
   },
-  shell: appConfigJson.shell,
   sidebar: {
+    navTitle: "导航",
     nav: [
       {
         key: "overview",
@@ -20,12 +20,15 @@ export const appConfig = {
       },
     ],
     footerLinks: [{ key: "settings", to: "/settings", label: "设置", icon: "settings" }],
-    footerStatus: {
-      to: "/settings",
-      label: appConfigJson.shell.statusLabel,
-      title: appConfigJson.shell.statusTitle,
-      tone: "ok",
-      icon: "sparkles",
-    },
+    footerStatuses: [
+      {
+        key: "template-ready",
+        to: "/settings",
+        label: "Ready",
+        title: "模板状态正常。点击进入设置。",
+        tone: "ok",
+        icon: "sparkles",
+      },
+    ],
   },
-} satisfies LiliaAppConfig;
+} satisfies LiliaUiConfig;

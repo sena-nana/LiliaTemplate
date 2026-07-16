@@ -6,14 +6,20 @@
 
 ```text
 src/
+  AppRoot.vue
   main.ts
   app.ts
   app.config.ts
   routes.ts
   commands.ts
+  settings.ts
+  overlays.ts
+  runtime.ts
+  diagnostics.ts
   features/
 src-tauri/
 tests/
+lilia.tools.profile.mjs
 ```
 
 ## 命令
@@ -35,7 +41,9 @@ yarn verify
 yarn sync:app-config
 ```
 
-运行时 Shell 配置在 `src/app.config.ts`，路由在 `src/routes.ts`，命令在 `src/commands.ts`。
+应用在 `src/app.ts` 中显式创建 Vue App 和 Router，并装配 Shell、命令、设置、Overlay 与可选 UI 安装器。Shell 导航在 `src/app.config.ts`，业务路由在 `src/routes.ts`，命令在 `src/commands.ts`，设置模型在 `src/settings.ts`。开发诊断只会在开发模式且启用 `VITE_LILIA_AGENT_DEBUG=1` 时动态加载。
+
+`lilia.tools.profile.mjs` 是本模板自己的工具与 Agent 调试检查 Profile；共享 `@lilia/tools` 不假设应用目录、首页或 Agent target。
 
 ## 公共依赖
 
@@ -45,7 +53,9 @@ yarn sync:app-config
     "@lilia/ui": "github:sena-nana/LiliaUI#workspace=@lilia/ui&head=main",
     "@lilia/config": "github:sena-nana/LiliaUI#workspace=@lilia/config&head=main",
     "@lilia/tools": "github:sena-nana/LiliaUI#workspace=@lilia/tools&head=main",
-    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&head=main"
+    "@lilia/build": "github:sena-nana/LiliaUI#workspace=@lilia/build&head=main",
+    "vue": "^3.5.39",
+    "vue-router": "^5.1.0"
   }
 }
 ```

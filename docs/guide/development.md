@@ -7,11 +7,17 @@ Tauri-Template/
 ├── src/
 │   ├── app.config.ts
 │   ├── app.ts
+│   ├── AppRoot.vue
 │   ├── commands.ts
+│   ├── diagnostics.ts
 │   ├── features/
+│   ├── overlays.ts
 │   ├── routes.ts
+│   ├── runtime.ts
+│   ├── settings.ts
 │   └── main.ts
 ├── src-tauri/
+├── lilia.tools.profile.mjs
 └── tests/
 ```
 
@@ -63,4 +69,6 @@ cargo check --manifest-path src-tauri/Cargo.toml
 yarn verify
 ```
 
-`yarn agent:debug` 会输出当前脚手架边界、关键文件、Agent 调试环境变量、共享 `data-agent-id` 目标和桌面 replay 工具探测结果。设置 `VITE_LILIA_AGENT_DEBUG=1` 后,基于 `@lilia/ui` 的应用会安装 `window.__liliaAgentDebug` 前端调试接口。
+`yarn agent:debug` 会读取 `lilia.tools.profile.mjs`，输出当前脚手架边界、关键文件、Agent 调试环境变量、应用声明的 `data-agent-id` 目标和桌面 replay 工具探测结果。
+
+前端诊断由 `src/diagnostics.ts` 显式装配。只有开发模式同时设置 `VITE_LILIA_AGENT_DEBUG=1`，或使用 `agent-debug` mode 时，应用才会动态加载 diagnostics subpath 并安装 `window.__liliaAgentDebug`；普通生产构建不会包含诊断 chunk，也不会注册相关监听器。
