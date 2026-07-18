@@ -6,7 +6,11 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: pnpm-migration-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   migrate:
@@ -32,7 +36,7 @@ jobs:
       - name: Rewrite Yarn configuration and commands
         run: node .github/scripts/migrate-pnpm.mjs
 
-      - name: Generate pnpm lockfiles
+      - name: Generate and validate pnpm lockfiles
         shell: bash
         run: |
           mapfile -t yarn_locks < <(find . -type f -name yarn.lock -not -path './.git/*' | sort)
@@ -55,16 +59,64 @@ jobs:
           pnpm install --lockfile-only --no-frozen-lockfile --ignore-scripts
           pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Commit migrated workflow
+      - name: Build migration bundle
         shell: bash
         run: |
           git restore --source=HEAD -- .github/workflows/agent-pnpm-migrate.yml .github/scripts/migrate-pnpm.mjs
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          if git diff --cached --quiet; then
-            echo "No migration changes were produced."
-            exit 1
-          fi
-          git commit -m "chore: migrate workflow from yarn to pnpm"
-          git push origin HEAD
+          mkdir -p .migration-output
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          import { writeFileSync } from 'node:fs';
+
+          const gitText = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const raw = execFileSync(
+            'git',
+            ['diff', '--cached', '--name-status', '--no-renames', '-z'],
+          ).toString('utf8');
+          const fields = raw.split('\0');
+          const changes = [];
+
+          for (let index = 0; index < fields.length - 1; index += 2) {
+            const status = fields[index];
+            const path = fields[index + 1];
+            if (!status || !path) continue;
+
+            if (status.startsWith('D')) {
+              const line = gitText('ls-tree', 'HEAD', '--', path);
+              changes.push({
+                path,
+                mode: line ? line.split(/\s+/)[0] : '100644',
+                type: 'blob',
+                delete: true,
+              });
+              continue;
+            }
+
+            const indexLine = gitText('ls-files', '-s', '--', path);
+            const content = execFileSync('git', ['show', `:${path}`]).toString('base64');
+            changes.push({
+              path,
+              mode: indexLine ? indexLine.split(/\s+/)[0] : '100644',
+              type: 'blob',
+              contentBase64: content,
+            });
+          }
+
+          const bundle = {
+            repository: process.env.GITHUB_REPOSITORY,
+            branch: process.env.GITHUB_HEAD_REF,
+            parentSha: gitText('rev-parse', 'HEAD'),
+            baseTreeSha: gitText('rev-parse', 'HEAD^{tree}'),
+            changes,
+          };
+          writeFileSync('.migration-output/migration-bundle.json', JSON.stringify(bundle));
+          NODE
+
+      - name: Upload migration bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-migration-bundle
+          path: .migration-output/migration-bundle.json
+          if-no-files-found: error
+          retention-days: 1
