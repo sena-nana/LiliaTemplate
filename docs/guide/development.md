@@ -25,9 +25,9 @@ Tauri-Template/
 ```bash
 npm install --global corepack@0.35.0
 corepack enable
-corepack pnpm install
-corepack pnpm dev
-corepack pnpm tauri:dev
+pnpm install
+pnpm dev
+pnpm tauri:dev
 ```
 
 本仓库统一使用 Node.js 26.5.0 与 pnpm 4.17.1。Corepack 从 Node.js 25 起不再随 Node.js 分发，因此首次使用前需要通过 npm 显式安装 Corepack 0.35.0。
