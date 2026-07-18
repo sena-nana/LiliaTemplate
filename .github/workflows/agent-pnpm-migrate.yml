@@ -37,7 +37,7 @@ jobs:
         run: |
           mapfile -t yarn_locks < <(find . -type f -name yarn.lock -not -path './.git/*' | sort)
           for lockfile in "${yarn_locks[@]}"; do
-            directory="$(dirname "${lockfile")"
+            directory="$(dirname "${lockfile}")"
             if [[ -f "${directory}/package.json" ]]; then
               (
                 cd "${directory}"
