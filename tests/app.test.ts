@@ -48,7 +48,7 @@ describe("application assembly", () => {
   it("mounts the active Nana provider, shell, capabilities, and async settings page", async () => {
     const active = (await import("../src/ui/preset")).activeUIPreset;
     const root = await mountPreset(active, active.id === "nana" ? "/settings?tab=advanced" : "/");
-    const shellTarget = active.id === "nana" ? "nana.shell" : "shell";
+    const shellTarget = active.id === "nana" ? "nana.shell" : "app-shell";
     await waitFor(() => expect(root.querySelector(`[data-agent-id="${shellTarget}"]`)).not.toBeNull());
     if (active.id === "nana") expect(root.querySelector('[data-agent-id="settings.page"]')).not.toBeNull();
     expect(window.__liliaAgentDebug).toBeUndefined();

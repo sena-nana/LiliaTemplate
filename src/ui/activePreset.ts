@@ -1,6 +1,6 @@
-import { liliaPresetAdapter } from "@lilia/ui/preset";
+import { liliaPresetDefinition } from "@lilia/ui/preset/definition";
 import { provideSettings, createSettingsModel } from "@lilia/ui-foundation/settings";
-import { LiliaDesktopShell, resolveLiliaIcon, setLiliaUiConfig } from "@lilia/ui/shell";
+import { resolveLiliaIcon, setLiliaUiConfig } from "@lilia/ui/shell/config";
 import { installCornerStyle, installGlobalScrollbarVisibility, installLiliaContextMenu, installNativeAppearance } from "@lilia/ui/runtime";
 import ContextMenuHost from "@lilia/ui/components/ContextMenuHost";
 import OverlayHost from "@lilia/ui/components/OverlayHost";
@@ -8,8 +8,9 @@ import appConfigJson from "../../app.config.json";
 import { defineComponent, h, type Component } from "vue";
 import type { AppUIPresetAdapter } from "./contract";
 import type { TemplateUIPresetAdapter } from "./types";
+import ActiveShell from "./ActiveShell.vue";
 
-const upstream = liliaPresetAdapter as AppUIPresetAdapter<Component>;
+const upstream = liliaPresetDefinition as AppUIPresetAdapter<Component>;
 const Hosts = defineComponent({ setup: () => () => [h(ContextMenuHost), h(OverlayHost)] });
 const settings = createSettingsModel({
   path: "/settings", defaultTab: "appearance", description: "偏好设置会保存到本地。",
@@ -25,7 +26,7 @@ const settings = createSettingsModel({
 
 export const templatePreset: TemplateUIPresetAdapter = {
   ...upstream,
-  shell: LiliaDesktopShell,
+  shell: ActiveShell,
   routes: [
     { path: "", component: () => import("../features/home/HomePage.vue") },
     { path: "settings", component: () => import("@lilia/ui/settings").then((module) => module.LiliaSettingsPage) },
