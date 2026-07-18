@@ -37,7 +37,7 @@ jobs:
         run: |
           mapfile -t yarn_locks < <(find . -type f -name yarn.lock -not -path './.git/*' | sort)
           for lockfile in "${yarn_locks[@]}"; do
-            directory="$(dirname "${lockfile}")"
+            directory="$(dirname "${lockfile")"
             if [[ -f "${directory}/package.json" ]]; then
               (
                 cd "${directory}"
@@ -58,8 +58,7 @@ jobs:
       - name: Commit migrated workflow
         shell: bash
         run: |
-          rm -f .github/workflows/agent-pnpm-migrate.yml
-          rm -f .github/scripts/migrate-pnpm.mjs
+          git restore --source=HEAD -- .github/workflows/agent-pnpm-migrate.yml .github/scripts/migrate-pnpm.mjs
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
