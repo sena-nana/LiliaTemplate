@@ -14,10 +14,10 @@ function appConfig() {
 
 function yarnRun(args: string[], options: Parameters<typeof spawnSync>[2]) {
   if (process.platform !== "win32") {
-    return spawnSync("yarn", args, options);
+    return spawnSync("pnpm", args, options);
   }
 
-  return spawnSync(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", "yarn.cmd", ...args], options);
+  return spawnSync(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", "pnpm.cmd", ...args], options);
 }
 
 describe("单应用模板工具链", () => {

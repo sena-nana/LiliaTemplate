@@ -57,9 +57,9 @@ export default defineToolsProfile({
     ],
   },
   entrypoints: [
-    { id: "dev", command: "yarn dev", purpose: "start the frontend development server" },
-    { id: "agent-debug", command: "yarn agent:debug --json", purpose: "inspect template readiness" },
-    { id: "test", command: "yarn test", purpose: "run application behavior tests" },
-    { id: "verify", command: "yarn verify", purpose: "run the complete application verification" },
+    { id: "dev", command: "pnpm dev", purpose: "start the frontend development server" },
+    { id: "agent-debug", command: "pnpm agent:debug --json", purpose: "inspect template readiness" },
+    { id: "test", command: "pnpm test", purpose: "run application behavior tests" },
+    { id: "verify", command: "pnpm verify", purpose: "run the complete application verification" },
   ],
 });

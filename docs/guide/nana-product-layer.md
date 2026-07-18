@@ -18,7 +18,7 @@ Nana 预设使用模板自有的产品 adapter 连接真实业务边界，公共
 用于自动化验证失败路径时可设置：
 
 ```bash
-VITE_TEMPLATE_MOCK_FAILURE=1 yarn dev
+VITE_TEMPLATE_MOCK_FAILURE=1 pnpm dev
 ```
 
 该变量只控制模板 mock 的首次连接失败，不改变生产产品 adapter 的设计。

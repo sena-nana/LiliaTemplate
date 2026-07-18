@@ -21,9 +21,9 @@ if (action === "status") {
   }
   const planningInspection = { ...inspection, appConfig };
   const commands = [
-    { id: "install", command: "yarn", args: ["install"] },
-    { id: "test", command: "yarn", args: ["test"] },
-    { id: "build", command: "yarn", args: ["build"] },
+    { id: "install", command: "pnpm", args: ["install"] },
+    { id: "test", command: "pnpm", args: ["test"] },
+    { id: "build", command: "pnpm", args: ["build"] },
   ];
   const plan = await createUiPresetPlan(planningInspection, action, {
     uiFiles: [],

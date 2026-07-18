@@ -14,15 +14,15 @@ Nana 两个来源额外运行真实浏览器流程，覆盖首页、编辑、设
 ## 本地完整检查
 
 ```bash
-yarn agent:debug --json
-yarn verify
-yarn tauri:build:no-bundle
+pnpm agent:debug --json
+pnpm verify
+pnpm tauri:build:no-bundle
 ```
 
 切换到 Nana 后再运行：
 
 ```bash
-yarn test:e2e
+pnpm test:e2e
 ```
 
 构建会生成 `dist/ui-bundle-report.json`，并与 `tests/bundle-baseline.json` 比较。报告必须证明单 Layer、异步入口数量和体积预算同时满足。
