@@ -75,7 +75,8 @@ function migrateCommand(command) {
     .replace(/\byarn\s+exec\b/g, "pnpm exec")
     .replace(/\byarn\s+npm\s+audit\b/g, "pnpm audit")
     .replace(/\byarn\s+run\s+/g, "pnpm run ")
-    .replace(/\byarn\s+/g, "pnpm ");
+    .replace(/\byarn\s+/g, "pnpm ")
+    .replace(/\bcorepack\s+pnpm\s+/g, "pnpm ");
 }
 
 function migrateGitDependency(specifier) {
