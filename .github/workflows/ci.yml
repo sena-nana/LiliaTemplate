@@ -43,8 +43,8 @@ jobs:
           ref: 9bb7da711100ce34945047d901073b569a4e4aa7
           path: LiliaUI
 
-      - name: Set up Node.js and Yarn
-        uses: sena-nana/LiliaUI/.github/actions/setup-node-yarn@9bb7da711100ce34945047d901073b569a4e4aa7
+      - name: Set up Node.js and pnpm
+        uses: sena-nana/LiliaUI/.github/actions/setup-node-pnpm@9bb7da711100ce34945047d901073b569a4e4aa7
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -58,34 +58,34 @@ jobs:
           workspaces: src-tauri -> target
 
       - name: Select UI preset
-        run: corepack yarn ui:preset ${{ matrix.ui-preset }} --force
+        run: pnpm ui:preset ${{ matrix.ui-preset }} --force
 
       - name: Select local UI source
         if: matrix.ui-source == 'local'
         env:
           LILIA_UI_LOCAL_PATH: ${{ github.workspace }}\LiliaUI
-        run: corepack yarn liliaui:local
+        run: pnpm liliaui:local
 
       - name: Confirm immutable remote source
         if: matrix.ui-source == 'remote'
-        run: corepack yarn install --immutable
+        run: pnpm install --frozen-lockfile
 
       - name: Inspect template boundary
-        run: corepack yarn agent:debug --json
+        run: pnpm agent:debug --json
 
       - name: Verify template
-        run: corepack yarn verify
+        run: pnpm verify
 
       - name: Install browser
         if: matrix.ui-preset == 'nana'
-        run: corepack yarn playwright install chromium
+        run: pnpm playwright install chromium
 
       - name: Verify Nana workflows
         if: matrix.ui-preset == 'nana'
-        run: corepack yarn test:e2e
+        run: pnpm test:e2e
 
       - name: Verify Tauri compilation
-        run: corepack yarn tauri:build:no-bundle
+        run: pnpm tauri:build:no-bundle
 
       - name: Show sccache stats
         shell: pwsh
@@ -100,8 +100,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Set up Node.js and Yarn
-        uses: sena-nana/LiliaUI/.github/actions/setup-node-yarn@9bb7da711100ce34945047d901073b569a4e4aa7
+      - name: Set up Node.js and pnpm
+        uses: sena-nana/LiliaUI/.github/actions/setup-node-pnpm@9bb7da711100ce34945047d901073b569a4e4aa7
 
       - name: Build docs
-        run: corepack yarn docs:build
+        run: pnpm docs:build
