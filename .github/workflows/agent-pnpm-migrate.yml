@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: pnpm-migration-${{ github.event.pull_request.number }}
@@ -120,3 +120,17 @@ jobs:
           path: .migration-output/migration-bundle.json
           if-no-files-found: error
           retention-days: 1
+
+      - name: Commit non-workflow migration changes
+        shell: bash
+        run: |
+          git restore --source=HEAD -- .github/workflows .github/scripts/migrate-pnpm.mjs
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Non-workflow migration changes are already committed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: migrate workflow from yarn to pnpm"
+          git push origin HEAD
