@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import {
+  existsSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const rootManifestPath = resolve(repoRoot, "package.json");
+const backupPath = resolve(repoRoot, ".lilia-ui-deps.remote.json");
 const localRoot = resolve(repoRoot, process.env.LILIA_UI_LOCAL_PATH || "../LiliaUI");
 
 const packages = [
@@ -29,38 +35,81 @@ if (mode === "status") {
   process.exit(0);
 }
 
-const localPackageRoots = packages.map(([, path]) => resolve(localRoot, path));
+const manifest = readRootManifest();
+const dependencies = manifest.dependencies ?? {};
+const activePackages = packages.filter(([name]) => dependencies[name] !== undefined);
+
 if (mode === "local") {
-  assertLocalPackages(localPackageRoots);
+  switchToLocal(manifest, activePackages);
+} else {
+  switchToRemote(manifest, activePackages);
 }
 
-runYarn(
-  mode === "local"
-    ? ["link", ...localPackageRoots, "--relative"]
-    : ["unlink", ...localPackageRoots],
-);
+runPnpm(["install", "--no-frozen-lockfile"]);
 printStatus();
 
-function assertLocalPackages(packageRoots) {
-  for (let index = 0; index < packages.length; index += 1) {
-    const [name] = packages[index];
-    const manifestPath = resolve(packageRoots[index], "package.json");
-    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-    if (manifest.name !== name) {
-      fail(`Expected ${manifestPath} to declare ${name}, got ${manifest.name || "(missing)"}.`);
+function switchToLocal(rootManifest, active) {
+  assertLocalPackages(active);
+
+  if (!existsSync(backupPath)) {
+    const remoteDependencies = Object.fromEntries(
+      active.map(([name]) => [name, rootManifest.dependencies[name]]),
+    );
+    writeFileSync(backupPath, `${JSON.stringify({ dependencies: remoteDependencies }, null, 2)}\n`);
+  }
+
+  for (const [name, localPath] of active) {
+    const relativePath = relative(repoRoot, resolve(localRoot, localPath)).replaceAll("\\", "/");
+    rootManifest.dependencies[name] = `link:${relativePath}`;
+  }
+  writeRootManifest(rootManifest);
+}
+
+function switchToRemote(rootManifest, active) {
+  if (!existsSync(backupPath)) {
+    const linked = active.filter(([name]) => isLocalSpecifier(rootManifest.dependencies[name]));
+    if (linked.length > 0) {
+      fail(
+        `Cannot restore ${linked.map(([name]) => name).join(", ")}: ${backupPath} is missing.`,
+      );
+    }
+    return;
+  }
+
+  const backup = JSON.parse(readFileSync(backupPath, "utf8"));
+  for (const [name] of active) {
+    const remoteSpecifier = backup.dependencies?.[name];
+    if (typeof remoteSpecifier !== "string" || remoteSpecifier.length === 0) {
+      fail(`Missing remote dependency backup for ${name}.`);
+    }
+    rootManifest.dependencies[name] = remoteSpecifier;
+  }
+  writeRootManifest(rootManifest);
+  rmSync(backupPath, { force: true });
+}
+
+function assertLocalPackages(active) {
+  for (const [name, localPath] of active) {
+    const manifestPath = resolve(localRoot, localPath, "package.json");
+    if (!existsSync(manifestPath)) {
+      fail(`Local package is missing: ${manifestPath}`);
+    }
+    const localManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    if (localManifest.name !== name) {
+      fail(`Expected ${manifestPath} to declare ${name}, got ${localManifest.name || "(missing)"}.`);
     }
   }
 }
 
-function runYarn(args) {
-  const yarnCli = process.env.npm_execpath;
-  if (!yarnCli) {
+function runPnpm(args) {
+  const pnpmCli = process.env.npm_execpath;
+  if (!pnpmCli || !/pnpm/i.test(pnpmCli)) {
     fail("Run this script through a root pnpm command, for example: pnpm liliaui:local");
   }
 
-  const isWindowsShim = process.platform === "win32" && /\.(?:cmd|bat)$/i.test(yarnCli);
-  const command = isWindowsShim ? process.env.ComSpec || "cmd.exe" : yarnCli;
-  const commandArgs = isWindowsShim ? ["/d", "/s", "/c", yarnCli, ...args] : args;
+  const isWindowsShim = process.platform === "win32" && /\.(?:cmd|bat)$/i.test(pnpmCli);
+  const command = isWindowsShim ? process.env.ComSpec || "cmd.exe" : pnpmCli;
+  const commandArgs = isWindowsShim ? ["/d", "/s", "/c", pnpmCli, ...args] : args;
   const result = spawnSync(command, commandArgs, {
     cwd: repoRoot,
     stdio: "inherit",
@@ -72,26 +121,29 @@ function runYarn(args) {
 }
 
 function printStatus() {
-  const manifest = readRootManifest();
-  const dependencies = manifest.dependencies ?? {};
-  const resolutions = manifest.resolutions ?? {};
+  const rootManifest = readRootManifest();
+  const currentDependencies = rootManifest.dependencies ?? {};
   console.log("LiliaUI dependency source:");
   for (const [name] of packages) {
-    if (dependencies[name] === undefined) {
+    const specifier = currentDependencies[name];
+    if (specifier === undefined) {
       console.log(`  ${name}: inactive`);
       continue;
     }
-    const resolution = resolutions[name];
-    const source =
-      typeof resolution === "string" && resolution.startsWith("portal:")
-        ? `local (${resolution})`
-        : "remote";
-    console.log(`  ${name}: ${source}`);
+    console.log(`  ${name}: ${isLocalSpecifier(specifier) ? `local (${specifier})` : "remote"}`);
   }
+}
+
+function isLocalSpecifier(specifier) {
+  return typeof specifier === "string" && /^(?:link|file):/.test(specifier);
 }
 
 function readRootManifest() {
   return JSON.parse(readFileSync(rootManifestPath, "utf8"));
+}
+
+function writeRootManifest(manifest) {
+  writeFileSync(rootManifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
 function fail(message) {
