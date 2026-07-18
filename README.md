@@ -25,12 +25,12 @@ lilia.tools.profile.mjs
 ## 命令
 
 ```bash
-yarn install
-yarn dev
-yarn tauri:dev
-yarn test
-yarn build
-yarn verify
+pnpm install
+pnpm dev
+pnpm tauri:dev
+pnpm test
+pnpm build
+pnpm verify
 ```
 
 ## 配置
@@ -38,7 +38,7 @@ yarn verify
 根目录 `app.config.json` 是应用名称、产品标题、版本和 Tauri 标识的同步来源。修改后运行：
 
 ```bash
-yarn sync:app-config
+pnpm sync:app-config
 ```
 
 应用在 `src/app.ts` 中显式创建 Vue App 和 Router，并装配 Shell、命令、设置、Overlay 与可选 UI 安装器。Shell 导航在 `src/app.config.ts`，业务路由在 `src/routes.ts`，命令在 `src/commands.ts`，设置模型在 `src/settings.ts`。开发诊断只会在开发模式且启用 `VITE_LILIA_AGENT_DEBUG=1` 时动态加载。

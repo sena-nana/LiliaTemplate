@@ -5,8 +5,8 @@
 ## 开始
 
 ```bash
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
 
 更多命令见[开发启动](./guide/development.md)。

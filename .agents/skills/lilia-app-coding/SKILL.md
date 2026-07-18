@@ -9,7 +9,7 @@ description: Coding workflow for final Lilia desktop applications. Use when Code
 
 - Read the relevant module, data contract, route, command map, tests, and LiliaUI ownership boundary before editing.
 - Use CodeGraph first when the repository is indexed and the task requires understanding code flow.
-- Run `yarn agent:debug` early when the app boundary or recommended verification commands are unclear. Use `yarn agent:debug --json` for machine-readable output.
+- Run `pnpm agent:debug` early when the app boundary or recommended verification commands are unclear. Use `pnpm agent:debug --json` for machine-readable output.
 - For complex tasks, split work into clear sub-tasks and use subagents only where the boundary is clean enough for independent investigation or validation.
 
 ## Ownership
@@ -29,7 +29,7 @@ description: Coding workflow for final Lilia desktop applications. Use when Code
 - Before changing a cross-end contract, define the boundary first, then update frontend, backend, permissions, and functional tests together.
 - Do not display technical explanations in the UI.
 - Do not add controls, routes, sidebar entries, commands, or disabled placeholders that are not connected to real behavior.
-- Use `$lilia-agent-debug` when adding or changing `data-agent-id`, debug harnesses, `yarn agent:debug`, or desktop replay support.
+- Use `$lilia-agent-debug` when adding or changing `data-agent-id`, debug harnesses, `pnpm agent:debug`, or desktop replay support.
 - When adding Agent, automation, timeline, permission, or approval behavior, define the user-visible workflow, runtime command, event shape, persistence, and fallback before wiring UI.
 - Keep provider-specific or experimental payloads behind adapter/runtime boundaries. UI should use app or Lilia-level contracts and round-trip opaque provider context only when required.
 - Prefer simple data flow over new abstractions. Add an abstraction only when it removes real duplication or matches an existing local pattern.
