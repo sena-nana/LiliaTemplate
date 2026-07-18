@@ -32,8 +32,8 @@ When changing the local LiliaUI dependency switch, package scripts, or documenta
 
 - Treat the switch itself as the behavior under test. Do not add low-value tests that hard-match script output.
 - Run `node --check scripts/lilia-ui-deps.mjs` after editing the switch script.
-- Run `pnpm liliaui:local`, confirm every active `@lilia/*` package reports a local `portal:` source, then run `pnpm liliaui:remote` and confirm `pnpm liliaui:status` reports remote again.
-- Confirm `package.json` and `pnpm-lock.yaml` do not retain local `resolutions` or `portal:` entries after switching back.
+- Run `pnpm liliaui:local`, confirm every active `@lilia/*` package reports a local `link:` source, then run `pnpm liliaui:remote` and confirm `pnpm liliaui:status` reports remote again.
+- Confirm `package.json` and `pnpm-lock.yaml` do not retain local `link:` entries after switching back, and `.lilia-ui-deps.remote.json` has been removed.
 - Run `pnpm install --frozen-lockfile` to prove the committed default dependency state still uses the pinned GitHub lockfile.
 - Skip broader desktop or Agent validation unless the change also affects app runtime behavior, build wrappers, UI, commands, or the Agent debug harness.
 
