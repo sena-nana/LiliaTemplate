@@ -22,13 +22,12 @@ logs/
 npm-debug.log*
 pnpm-debug.log*
 pnpm-error.log*
-pnpm-debug.log*
 
 # Secrets
 .env
 .env.*
 !.env.example
-!.env.pnpm *.pem
+*.pem
 *.key
 .secrets/
 
@@ -45,6 +44,7 @@ node_modules/
 .vite/
 dist/
 *.local
+.lilia-ui-deps.remote.json
 
 # TypeScript
 *.tsbuildinfo
