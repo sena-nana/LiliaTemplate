@@ -56,8 +56,8 @@ jobs:
         with:
           ref: ${{ steps.release_ref.outputs.ref || github.ref }}
 
-      - name: Set up Node.js and Yarn
-        uses: sena-nana/LiliaUI/.github/actions/setup-node-yarn@8cdf9fce6f86b903a475ac852bce0627f237baf5
+      - name: Set up Node.js and pnpm
+        uses: sena-nana/LiliaUI/.github/actions/setup-node-pnpm@8cdf9fce6f86b903a475ac852bce0627f237baf5
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -71,7 +71,7 @@ jobs:
           workspaces: src-tauri -> target
 
       - name: Verify template
-        run: corepack yarn verify
+        run: pnpm verify
 
       - name: Show sccache stats
         shell: pwsh
@@ -115,8 +115,8 @@ jobs:
         with:
           ref: ${{ steps.release_ref.outputs.ref || github.ref }}
 
-      - name: Set up Node.js and Yarn
-        uses: sena-nana/LiliaUI/.github/actions/setup-node-yarn@8cdf9fce6f86b903a475ac852bce0627f237baf5
+      - name: Set up Node.js and pnpm
+        uses: sena-nana/LiliaUI/.github/actions/setup-node-pnpm@8cdf9fce6f86b903a475ac852bce0627f237baf5
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -142,7 +142,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: .
-          tauriScript: corepack yarn tauri
+          tauriScript: pnpm tauri
           tagName: ${{ steps.release_ref.outputs.tag }}
           releaseName: ${{ steps.app_metadata.outputs.product_title }} ${{ steps.release_ref.outputs.tag }}
           releaseDraft: true
