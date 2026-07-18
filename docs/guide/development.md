@@ -23,14 +23,13 @@ Tauri-Template/
 ## 本地运行
 
 ```bash
-npm install --global corepack@0.35.0
-corepack enable
-pnpm install
+npm install --global pnpm@11.14.0
+pnpm install --frozen-lockfile
 pnpm dev
 pnpm tauri:dev
 ```
 
-本仓库统一使用 Node.js 26.5.0 与 pnpm 4.17.1。Corepack 从 Node.js 25 起不再随 Node.js 分发，因此首次使用前需要通过 npm 显式安装 Corepack 0.35.0。
+本仓库统一使用 Node.js 26.5.0 与 pnpm 11.14.0。Node.js 26 不再内置 Corepack，因此直接安装 pnpm，不依赖 Corepack。
 
 ## LiliaUI 本地联调
 
@@ -42,7 +41,7 @@ pnpm tauri:dev
 pnpm liliaui:local
 ```
 
-该命令会通过 `pnpm link --relative` 临时维护项目级 `resolutions`，把当前 manifest 中的 `@lilia/*` 包切到本地 `portal:` 依赖并刷新安装。如果 LiliaUI 不在相邻目录，可用 `LILIA_UI_LOCAL_PATH` 指定路径：
+该命令会把当前 manifest 中启用的 `@lilia/*` 依赖临时切换为指向本地 LiliaUI 工作区的 `link:` 依赖，并将原始远端依赖记录在被忽略的 `.lilia-ui-deps.remote.json` 中。如果 LiliaUI 不在相邻目录，可用 `LILIA_UI_LOCAL_PATH` 指定路径：
 
 ```powershell
 $env:LILIA_UI_LOCAL_PATH = "C:\Files\workspace\LiliaUI"
@@ -57,7 +56,7 @@ pnpm liliaui:remote
 pnpm liliaui:status
 ```
 
-`pnpm liliaui:status` 会检查当前所有 LiliaUI 包来自本地 `portal:` 还是同一个固定 GitHub commit。提交策略是：默认远端 manifest 和锁文件可以入库，本地 `resolutions` / `portal:` lockfile 只作为个人联调状态，不随普通业务提交一起提交。
+`pnpm liliaui:status` 会报告当前所有 LiliaUI 包来自本地 `link:` 路径还是固定 GitHub commit。提交策略是：远端 manifest 与对应锁文件可以入库；本地 `link:` manifest、临时锁文件和 `.lilia-ui-deps.remote.json` 不随普通业务提交入库。
 
 ## 验证
 
