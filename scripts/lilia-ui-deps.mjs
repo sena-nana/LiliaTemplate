@@ -13,6 +13,7 @@ const packages = [
   ["@lilia/build", "packages/build"],
   ["@lilia/config", "packages/config"],
   ["@lilia/nana-ui", "packages/nana-ui"],
+  ["@lilia/theme", "packages/theme"],
   ["@lilia/tools", "packages/tools"],
   ["@lilia/ui-contract", "packages/ui-contract"],
   ["@lilia/ui-foundation", "packages/ui-foundation"],

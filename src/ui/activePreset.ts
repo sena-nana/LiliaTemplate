@@ -2,6 +2,7 @@ import { liliaPresetDefinition } from "@lilia/ui/preset/definition";
 import { provideSettings, createSettingsModel } from "@lilia/ui-foundation/settings";
 import { resolveLiliaIcon, setLiliaUiConfig } from "@lilia/ui/shell/config";
 import { installCornerStyle, installGlobalScrollbarVisibility, installLiliaContextMenu, installNativeAppearance } from "@lilia/ui/runtime";
+import { installTauriNativeAppearanceAdapter } from "@lilia/ui/runtime/tauri";
 import ContextMenuHost from "@lilia/ui/components/ContextMenuHost";
 import OverlayHost from "@lilia/ui/components/OverlayHost";
 import appConfigJson from "../../app.config.json";
@@ -38,8 +39,6 @@ export const templatePreset: TemplateUIPresetAdapter = {
       version: appConfigJson.version, storageKeyPrefix: appConfigJson.storageKeyPrefix,
       appearance: { backdropTarget: "sidebar" },
       sidebar: {
-        navTitle: "导航",
-        nav: [{ key: "overview", to: "/", label: "首页", icon: "home" }],
         footerLinks: [{ key: "settings", to: "/settings", label: "设置", icon: "settings" }],
       },
     });
@@ -47,6 +46,7 @@ export const templatePreset: TemplateUIPresetAdapter = {
     installLiliaContextMenu(app);
     installGlobalScrollbarVisibility();
     installCornerStyle();
+    installTauriNativeAppearanceAdapter();
     installNativeAppearance();
   },
   installDiagnostics: async () => {

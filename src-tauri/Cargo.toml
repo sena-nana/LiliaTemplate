@@ -13,8 +13,8 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["image-png"] }
-tauri-plugin-lilia = { git = "https://github.com/sena-nana/LiliaUI", rev = "ae776ecc7320cfa5b63d26a015e341cdeb9839e1" }
+tauri = { version = "2", features = ["image-png", "macos-private-api"] }
+tauri-plugin-lilia = { git = "https://github.com/sena-nana/LiliaUI", rev = "fefcd3bc4a4a454276f2162bc21ab4faef14fd3f" }
 tauri-plugin-store = "2"
 
 [dev-dependencies]

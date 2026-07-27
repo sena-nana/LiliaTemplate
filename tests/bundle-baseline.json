@@ -1,6 +1,6 @@
 {
   "lilia": {
-    "bytes": { "js": 191776, "css": 37295 },
+    "bytes": { "js": 212781, "css": 48520 },
     "allowedGrowth": 0.15,
     "minimumDynamicEntries": 4
   },

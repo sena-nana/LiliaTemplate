@@ -14,7 +14,6 @@ Tauri-Template/
 │   ├── ui/
 │   └── main.ts
 ├── src-tauri/
-├── scripts/ui-preset/
 ├── app.config.json
 ├── lilia.tools.profile.mjs
 └── tests/
@@ -34,7 +33,7 @@ corepack yarn tauri:dev
 
 ## LiliaUI 本地联调
 
-默认 `package.json` 和提交版 `yarn.lock` 固定使用 GitHub 上同一个 LiliaUI commit。基础包始终存在，Layer 包只保留当前预设需要的 `@lilia/ui` 或 `@lilia/nana-ui`。普通 `yarn install` 不依赖本机存在 LiliaUI 源码仓库。
+默认 `package.json` 和提交版 `yarn.lock` 固定使用 GitHub 上同一个 LiliaUI commit。普通 `yarn install` 不依赖本机存在 LiliaUI 源码仓库。
 
 需要同时修改 LiliaUI 时，从模板仓库根目录运行：
 

@@ -9,6 +9,7 @@ export default defineToolsProfile({
   expectedDependencies: [
     "@lilia/build",
     "@lilia/config",
+    "@lilia/theme",
     "@lilia/tools",
     isNana ? "@lilia/nana-ui" : "@lilia/ui",
     "@lilia/ui-contract",

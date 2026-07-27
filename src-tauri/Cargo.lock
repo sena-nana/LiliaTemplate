@@ -3095,7 +3095,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-lilia"
 version = "0.1.0"
-source = "git+https://github.com/sena-nana/LiliaUI?rev=ae776ecc7320cfa5b63d26a015e341cdeb9839e1#ae776ecc7320cfa5b63d26a015e341cdeb9839e1"
+source = "git+https://github.com/sena-nana/LiliaUI?rev=fefcd3bc4a4a454276f2162bc21ab4faef14fd3f#fefcd3bc4a4a454276f2162bc21ab4faef14fd3f"
 dependencies = [
  "serde",
  "serde_json",

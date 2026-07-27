@@ -11,6 +11,5 @@ yarn dev
 
 更多命令见[开发启动](./guide/development.md)。
 
-- [UI 预设与迁移](./guide/ui-presets.md)
 - [Nana 产品能力](./guide/nana-product-layer.md)
 - [验收矩阵](./guide/acceptance.md)
